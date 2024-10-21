@@ -1,6 +1,6 @@
-import { Coupon, Product } from '../../types'
-import { PageLayout } from '../components'
-import { useProductManagement } from '../hooks'
+import { Coupon, Product } from '../../types.ts'
+import { Card, PageLayout, Section } from '../components/index.ts'
+import { useAccordion, useCouponManager, useProductManager } from '../hooks'
 
 interface Props {
   products: Product[]
@@ -11,41 +11,37 @@ interface Props {
 }
 
 export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, onCouponAdd }: Props) => {
+  const { openItems, toggleProducts } = useAccordion()
+  const { newCoupon, handleChangeCoupon, handleAddCoupon } = useCouponManager({ onCouponAdd })
   const {
-    openProductIds,
     editingProduct,
-    newDiscount,
-    newCoupon,
-    showNewProductForm,
     newProduct,
-    setShowNewProductForm,
+    newDiscount,
+    isNewProductForm,
     setNewProduct,
     setNewDiscount,
-    setNewCoupon,
-    toggleProductAccordion,
+    toggleNewProductForm,
     handleEditProduct,
-    handleProductNameUpdate,
-    handlePriceUpdate,
-    handleEditComplete,
     handleStockUpdate,
+    handleEditComplete,
     handleAddDiscount,
-    handleRemoveDiscount,
-    handleAddCoupon,
     handleAddNewProduct,
-  } = useProductManagement({ products, onProductUpdate, onProductAdd, onCouponAdd })
+    handleUpdateProduct,
+    handleRemoveDiscount,
+  } = useProductManager({ products, onProductUpdate, onProductAdd })
+
   return (
     <PageLayout title="관리자 페이지">
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">상품 관리</h2>
+      <Section title="상품 관리">
         <button
-          onClick={() => setShowNewProductForm(!showNewProductForm)}
+          onClick={toggleNewProductForm}
           className="bg-green-500 text-white px-4 py-2 rounded mb-4 hover:bg-green-600"
         >
-          {showNewProductForm ? '취소' : '새 상품 추가'}
+          {isNewProductForm ? '취소' : '새 상품 추가'}
         </button>
-        {showNewProductForm && (
-          <div className="bg-white p-4 rounded shadow mb-4">
-            <h3 className="text-xl font-semibold mb-2">새 상품 추가</h3>
+
+        {isNewProductForm && (
+          <Card title="새 상품 추가">
             <div className="mb-2">
               <label htmlFor="productName" className="block text-sm font-medium text-gray-700">
                 상품명
@@ -88,19 +84,20 @@ export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, on
             >
               추가
             </button>
-          </div>
+          </Card>
         )}
+
         <div className="space-y-2">
           {products.map((product, index) => (
             <div key={product.id} data-testid={`product-${index + 1}`} className="bg-white p-4 rounded shadow">
               <button
                 data-testid="toggle-button"
-                onClick={() => toggleProductAccordion(product.id)}
+                onClick={() => toggleProducts(product.id)}
                 className="w-full text-left font-semibold"
               >
                 {product.name} - {product.price}원 (재고: {product.stock})
               </button>
-              {openProductIds.has(product.id) && (
+              {openItems.has(product.id) && (
                 <div className="mt-2">
                   {editingProduct && editingProduct.id === product.id ? (
                     <div>
@@ -108,8 +105,10 @@ export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, on
                         <label className="block mb-1">상품명: </label>
                         <input
                           type="text"
+                          name="name"
+                          id={product.id}
                           value={editingProduct.name}
-                          onChange={(e) => handleProductNameUpdate(product.id, e.target.value)}
+                          onChange={handleUpdateProduct}
                           className="w-full p-2 border rounded"
                         />
                       </div>
@@ -117,8 +116,10 @@ export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, on
                         <label className="block mb-1">가격: </label>
                         <input
                           type="number"
+                          id={product.id}
+                          name="price"
                           value={editingProduct.price}
-                          onChange={(e) => handlePriceUpdate(product.id, parseInt(e.target.value))}
+                          onChange={handleUpdateProduct}
                           className="w-full p-2 border rounded"
                         />
                       </div>
@@ -200,31 +201,32 @@ export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, on
             </div>
           ))}
         </div>
-      </div>
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">쿠폰 관리</h2>
-        <div className="bg-white p-4 rounded shadow">
+      </Section>
+
+      <Section title="쿠폰 관리">
+        <Card>
           <div className="space-y-2 mb-4">
             <input
               type="text"
               placeholder="쿠폰 이름"
+              name="name"
               value={newCoupon.name}
-              onChange={(e) => setNewCoupon({ ...newCoupon, name: e.target.value })}
+              onChange={handleChangeCoupon}
               className="w-full p-2 border rounded"
             />
             <input
               type="text"
               placeholder="쿠폰 코드"
+              name="code"
               value={newCoupon.code}
-              onChange={(e) => setNewCoupon({ ...newCoupon, code: e.target.value })}
+              onChange={handleChangeCoupon}
               className="w-full p-2 border rounded"
             />
             <div className="flex gap-2">
               <select
                 value={newCoupon.discountType}
-                onChange={(e) =>
-                  setNewCoupon({ ...newCoupon, discountType: e.target.value as 'amount' | 'percentage' })
-                }
+                name="discountType"
+                onChange={handleChangeCoupon}
                 className="w-full p-2 border rounded"
               >
                 <option value="amount">금액(원)</option>
@@ -233,8 +235,9 @@ export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, on
               <input
                 type="number"
                 placeholder="할인 값"
+                name="discountValue"
                 value={newCoupon.discountValue}
-                onChange={(e) => setNewCoupon({ ...newCoupon, discountValue: parseInt(e.target.value) })}
+                onChange={handleChangeCoupon}
                 className="w-full p-2 border rounded"
               />
             </div>
@@ -242,6 +245,7 @@ export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, on
               쿠폰 추가
             </button>
           </div>
+
           <div>
             <h3 className="text-lg font-semibold mb-2">현재 쿠폰 목록</h3>
             <div className="space-y-2">
@@ -253,8 +257,8 @@ export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, on
               ))}
             </div>
           </div>
-        </div>
-      </div>
+        </Card>
+      </Section>
     </PageLayout>
   )
 }

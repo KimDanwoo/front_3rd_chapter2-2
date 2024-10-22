@@ -28,8 +28,8 @@ export const CartPage = ({ products, coupons }: Props) => {
             <ProductContent
               key={product.id}
               product={product}
-              addToCart={addToCart}
               getRemainingStock={getRemainingStock}
+              onClickAddToCart={addToCart}
             />
           ))}
         </div>
@@ -41,14 +41,14 @@ export const CartPage = ({ products, coupons }: Props) => {
             <CartContent
               key={item.product.id}
               item={item}
-              updateQuantity={updateQuantity}
-              removeFromCart={removeFromCart}
+              onClickUpdateQuantity={updateQuantity}
+              onClickRemoveCart={removeFromCart}
             />
           ))}
         </div>
 
         <Card title="쿠폰 적용">
-          <CouponSelector applyCoupon={applyCoupon} selectedCoupon={selectedCoupon} coupons={coupons} />
+          <CouponSelector coupons={coupons} selectedCoupon={selectedCoupon} onChangeApplyCoupon={applyCoupon} />
         </Card>
 
         <Card title="주문 요약">

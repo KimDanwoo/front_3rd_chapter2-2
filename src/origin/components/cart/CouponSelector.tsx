@@ -1,5 +1,6 @@
 import { FC } from 'react'
-import { Coupon } from '../../../types'
+import { Coupon } from '@/types'
+import { convertToNumber, discountFormat } from '@hooks/utils'
 
 type CouponSelectorProps = {
   applyCoupon: (coupon: any) => void
@@ -16,19 +17,15 @@ export const CouponSelector: FC<CouponSelectorProps> = ({ applyCoupon, selectedC
         <option value="">쿠폰 선택</option>
         {coupons.map((coupon, index) => (
           <option key={coupon.code} value={index}>
-            {coupon.name} -{' '}
-            {coupon.discountType === 'amount' ? `${coupon.discountValue}원` : `${coupon.discountValue}%`}
+            {coupon.name} - {`${convertToNumber(coupon.discountValue)}${discountFormat(coupon)}`}
           </option>
         ))}
       </select>
 
       {selectedCoupon && (
         <p className="text-green-600">
-          적용된 쿠폰: {selectedCoupon.name}(
-          {selectedCoupon.discountType === 'amount'
-            ? `${selectedCoupon.discountValue}원`
-            : `${selectedCoupon.discountValue}%`}
-          할인)
+          적용된 쿠폰: {selectedCoupon.name}(`${convertToNumber(selectedCoupon.discountValue)}$
+          {discountFormat(selectedCoupon)}` 할인)
         </p>
       )}
     </>

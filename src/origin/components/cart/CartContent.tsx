@@ -1,6 +1,7 @@
 import { FC } from 'react'
-import { getMaxApplicableDiscount } from '../../hooks/utils'
-import { CartItem } from '../../../types'
+import { getMaxApplicableDiscount } from '@hooks/utils'
+import { CartItem } from '@/types'
+import { Button } from '@components/common'
 
 type CardItemProps = {
   item: CartItem
@@ -15,6 +16,7 @@ export const CartContent: FC<CardItemProps> = ({ item, updateQuantity, removeFro
       <div>
         <span className="font-semibold">{item.product.name}</span>
         <br />
+
         <span className="text-sm text-gray-600">
           {item.product.price}원 x {item.quantity}
           {appliedDiscount > 0 && (
@@ -22,25 +24,11 @@ export const CartContent: FC<CardItemProps> = ({ item, updateQuantity, removeFro
           )}
         </span>
       </div>
+
       <div>
-        <button
-          onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-          className="bg-gray-300 text-gray-800 px-2 py-1 rounded mr-1 hover:bg-gray-400"
-        >
-          -
-        </button>
-        <button
-          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-          className="bg-gray-300 text-gray-800 px-2 py-1 rounded mr-1 hover:bg-gray-400"
-        >
-          +
-        </button>
-        <button
-          onClick={() => removeFromCart(item.product.id)}
-          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-        >
-          삭제
-        </button>
+        <Button size="sm" color="info" onClick={() => updateQuantity(item.product.id, item.quantity - 1)} text="-" />
+        <Button size="sm" color="info" onClick={() => updateQuantity(item.product.id, item.quantity + 1)} text="+" />
+        <Button size="sm" color="error" onClick={() => removeFromCart(item.product.id)} text="삭제" />
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-import { useAdminContext } from '../../hooks/useContextProvider'
+import { useAdminContext } from '@hooks/useContextProvider'
 
 export const AppHeader = () => {
   const { isAdmin, setIsAdmin } = useAdminContext()

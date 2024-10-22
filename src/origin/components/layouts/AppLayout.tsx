@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren } from 'react'
-import { AppHeader } from './AppHeader'
-import { AdminProvider } from '../../context'
+import { AppHeader } from '.'
+import { AdminProvider } from '@/origin/context'
 
 export const AppLayout: FC<PropsWithChildren> = ({ children }) => {
   return (

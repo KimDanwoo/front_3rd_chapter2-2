@@ -4,19 +4,13 @@ import { Product } from '../../types'
 export const useProduct = (initialProducts: Product[]) => {
   const [products, setProducts] = useState<Product[]>(initialProducts)
 
-  const updateProduct = useCallback(
-    (updatedProduct: Product) => {
-      setProducts((prevProducts) => prevProducts.map((p) => (p.id === updatedProduct.id ? updatedProduct : p)))
-    },
-    [setProducts],
-  )
+  const updateProduct = useCallback((updatedProduct: Product) => {
+    setProducts((prevProducts) => prevProducts.map((p) => (p.id === updatedProduct.id ? updatedProduct : p)))
+  }, [])
 
-  const addProduct = useCallback(
-    (newProduct: Product) => {
-      setProducts((prevProducts) => [...prevProducts, newProduct])
-    },
-    [setProducts],
-  )
+  const addProduct = useCallback((newProduct: Product) => {
+    setProducts((prevProducts) => [...prevProducts, newProduct])
+  }, [])
 
   return {
     products,

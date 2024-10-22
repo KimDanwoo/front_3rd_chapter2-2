@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useCallback, useState } from 'react'
 import { Product, Discount } from '../../types'
 
 interface UseProductManagerProps {
@@ -25,57 +25,69 @@ export const useProductManager = ({ products, onProductUpdate, onProductAdd }: U
   }
 
   // 새로운 핸들러 함수 추가
-  const handleUpdateProduct = (e: ChangeEvent) => {
-    const { id, name, value } = e.target as HTMLInputElement
-    if (editingProduct && editingProduct.id === id) {
-      const updatedProduct = { ...editingProduct, [name]: value }
-      setEditingProduct(updatedProduct)
-    }
-  }
+  const handleUpdateProduct = useCallback(
+    (e: ChangeEvent) => {
+      const { id, name, value } = e.target as HTMLInputElement
+      if (editingProduct && editingProduct.id === id) {
+        const updatedProduct = { ...editingProduct, [name]: value }
+        setEditingProduct(updatedProduct)
+      }
+    },
+    [editingProduct],
+  )
 
   // 수정 완료 핸들러 함수 추가
-  const handleEditComplete = () => {
+  const handleEditComplete = useCallback(() => {
     if (editingProduct) {
       onProductUpdate(editingProduct)
       setEditingProduct(null)
     }
-  }
+  }, [editingProduct])
 
-  const handleStockUpdate = (productId: string, newStock: number) => {
-    const updatedProduct = products.find((p) => p.id === productId)
-    if (updatedProduct) {
-      const newProduct = { ...updatedProduct, stock: newStock }
-      onProductUpdate(newProduct)
-      setEditingProduct(newProduct)
-    }
-  }
-
-  const handleAddDiscount = (productId: string) => {
-    const updatedProduct = products.find((p) => p.id === productId)
-    if (updatedProduct && editingProduct) {
-      const newProduct = {
-        ...updatedProduct,
-        discounts: [...updatedProduct.discounts, newDiscount],
+  const handleStockUpdate = useCallback(
+    (productId: string, newStock: number) => {
+      const updatedProduct = products.find((p) => p.id === productId)
+      if (updatedProduct) {
+        const newProduct = { ...updatedProduct, stock: newStock }
+        onProductUpdate(newProduct)
+        setEditingProduct(newProduct)
       }
-      onProductUpdate(newProduct)
-      setEditingProduct(newProduct)
-      setNewDiscount({ quantity: 0, rate: 0 })
-    }
-  }
+    },
+    [products],
+  )
 
-  const handleRemoveDiscount = (productId: string, index: number) => {
-    const updatedProduct = products.find((p) => p.id === productId)
-    if (updatedProduct) {
-      const newProduct = {
-        ...updatedProduct,
-        discounts: updatedProduct.discounts.filter((_, i) => i !== index),
+  const handleAddDiscount = useCallback(
+    (productId: string) => {
+      const updatedProduct = products.find((p) => p.id === productId)
+      if (updatedProduct && editingProduct) {
+        const newProduct = {
+          ...updatedProduct,
+          discounts: [...updatedProduct.discounts, newDiscount],
+        }
+        onProductUpdate(newProduct)
+        setEditingProduct(newProduct)
+        setNewDiscount({ quantity: 0, rate: 0 })
       }
-      onProductUpdate(newProduct)
-      setEditingProduct(newProduct)
-    }
-  }
+    },
+    [products, editingProduct, newDiscount],
+  )
 
-  const handleAddNewProduct = () => {
+  const handleRemoveDiscount = useCallback(
+    (productId: string, index: number) => {
+      const updatedProduct = products.find((p) => p.id === productId)
+      if (updatedProduct) {
+        const newProduct = {
+          ...updatedProduct,
+          discounts: updatedProduct.discounts.filter((_, i) => i !== index),
+        }
+        onProductUpdate(newProduct)
+        setEditingProduct(newProduct)
+      }
+    },
+    [products],
+  )
+
+  const handleAddNewProduct = useCallback(() => {
     const productWithId = { ...newProduct, id: Date.now().toString() }
     onProductAdd(productWithId)
     setNewProduct({
@@ -85,11 +97,11 @@ export const useProductManager = ({ products, onProductUpdate, onProductAdd }: U
       discounts: [],
     })
     setIsNewProductForm(false)
-  }
+  }, [newProduct])
 
-  const toggleNewProductForm = () => {
-    setIsNewProductForm(!isNewProductForm)
-  }
+  const toggleNewProductForm = useCallback(() => {
+    setIsNewProductForm((prev) => !prev)
+  }, [])
 
   return {
     editingProduct,

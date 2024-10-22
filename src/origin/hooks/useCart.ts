@@ -6,22 +6,25 @@ export const useCart = () => {
   const [cart, setCart] = useState<CartItem[]>([])
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null)
 
-  const findItemInCart = (cart: CartItem[], productId: string) => {
+  const findItemInCart = useCallback((cart: CartItem[], productId: string) => {
     return cart.find(({ product }) => product.id === productId)
-  }
+  }, [])
 
-  const getRemainingStock = (id: string, stock: number) => {
-    const cartItem = findItemInCart(cart, id)
-    return stock - (cartItem?.quantity || 0)
-  }
+  const getRemainingStock = useCallback(
+    (id: string, stock: number) => {
+      const cartItem = findItemInCart(cart, id)
+      return stock - (cartItem?.quantity || 0)
+    },
+    [cart],
+  )
 
-  const updateCartItem = (cart: CartItem[], productId: string) => {
+  const updateCartItem = useCallback((cart: CartItem[], productId: string) => {
     return cart.map((item) =>
       item.product.id === productId ? { ...item, quantity: Math.min(item.quantity + 1, item.product.stock) } : item,
     )
-  }
+  }, [])
 
-  const addToCart = (product: Product) => {
+  const addToCart = useCallback((product: Product) => {
     const { id, stock } = product
 
     if (!getRemainingStock(id, stock)) return
@@ -30,7 +33,7 @@ export const useCart = () => {
       const existingItem = findItemInCart(prevCart, id)
       return existingItem ? updateCartItem(prevCart, id) : [...prevCart, { product, quantity: 1 }]
     })
-  }
+  }, [])
 
   const removeFromCart = useCallback((productId: string) => {
     setCart((prevCart) => prevCart.filter(({ product }) => product.id !== productId))
@@ -42,18 +45,18 @@ export const useCart = () => {
     })
   }, [])
 
-  const calculateTotal = () => {
+  const calculateTotal = useCallback(() => {
     const { totalBeforeDiscount, totalAfterDiscount, totalDiscount } = calculateCartTotal(cart, selectedCoupon)
     return {
       totalBeforeDiscount: Math.round(totalBeforeDiscount),
       totalAfterDiscount: Math.round(totalAfterDiscount),
       totalDiscount: Math.round(totalDiscount),
     }
-  }
+  }, [cart, selectedCoupon])
 
-  const applyCoupon = (coupon: Coupon) => {
+  const applyCoupon = useCallback((coupon: Coupon) => {
     setSelectedCoupon(coupon)
-  }
+  }, [])
 
   return {
     cart,

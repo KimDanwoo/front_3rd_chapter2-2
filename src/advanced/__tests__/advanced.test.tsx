@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { describe, expect, test } from 'vitest'
-import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { describe, expect, test, vi } from 'vitest'
+import { act, fireEvent, render, renderHook, screen, within } from '@testing-library/react'
 import { CartPage } from '../../origin/pages/CartPage'
 import { AdminPage } from '../../origin/pages/AdminPage'
-import { Coupon, Product } from '../../types'
+import { CartItem, Coupon, Discount, Product } from '../../types'
+import { useAccordion, useCouponManager, useProductManager } from '../../origin/hooks'
+import * as cartUtils from '../../origin/hooks/utils'
 
 const mockProducts: Product[] = [
   {
@@ -223,12 +225,462 @@ describe('advanced > ', () => {
   })
 
   describe('자유롭게 작성해보세요.', () => {
-    test('새로운 유틸 함수를 만든 후에 테스트 코드를 작성해서 실행해보세요', () => {
-      expect(true).toBe(false)
+    describe('cartUtils', () => {
+      const createTestProduct = (overrides = {}) => ({
+        id: 'test-1',
+        name: 'Test Product',
+        price: 10000,
+        stock: 10,
+        discounts: [
+          { quantity: 2, rate: 0.1 }, // 2개 이상 10% 할인
+          { quantity: 5, rate: 0.2 }, // 5개 이상 20% 할인
+        ],
+        ...overrides,
+      })
+
+      const createTestCartItem = (overrides = {}) => ({
+        product: createTestProduct(),
+        quantity: 1,
+        ...overrides,
+      })
+
+      describe('calculateMaxDiscount', () => {
+        test('할인이 없는 경우 0을 반환', () => {
+          expect(cartUtils.calculateMaxDiscount([], 1)).toBe(0)
+        })
+
+        test('수량이 할인 기준에 미달하면 0을 반환', () => {
+          const discounts = [{ quantity: 2, rate: 0.1 }]
+          expect(cartUtils.calculateMaxDiscount(discounts, 1)).toBe(0)
+        })
+
+        test('수량이 할인 기준에 딱 맞으면 할인율을 반환', () => {
+          const discounts = [
+            { quantity: 5, rate: 0.1 },
+            { quantity: 50, rate: 0.5 },
+          ]
+          expect(cartUtils.calculateMaxDiscount(discounts, 5)).toBe(0.1)
+          expect(cartUtils.calculateMaxDiscount(discounts, 50)).toBe(0.5)
+        })
+      })
+
+      describe('calculateDiscountedPrice', () => {
+        test('할인이 없으면 정가를 반환해야 한다.', () => {
+          const cartItem = createTestCartItem()
+          expect(cartUtils.calculateDiscountedPrice(cartItem, 0)).toBe(10000)
+        })
+
+        test('할인된 가격을 계산할 수 있다.', () => {
+          const cartItem = createTestCartItem({ quantity: 5 })
+          expect(cartUtils.calculateDiscountedPrice(cartItem, 5)).toBe(-200000)
+        })
+      })
+
+      describe('getMaxApplicableDiscount', () => {
+        test('할인이 적용되지 않으면 0을 반환', () => {
+          const item: CartItem = { product: createTestProduct(), quantity: 1 }
+          expect(cartUtils.getMaxApplicableDiscount(item)).toBe(0)
+        })
+
+        test('적용 가능한 가장 높은 할인율을 반환', () => {
+          const item: CartItem = { product: createTestProduct(), quantity: 5 }
+          expect(cartUtils.getMaxApplicableDiscount(item)).toBe(0.2)
+        })
+      })
+
+      describe('calculateItemTotal', () => {
+        test('할인 없이 총액을 계산', () => {
+          const item: CartItem = { product: createTestProduct(), quantity: 5 }
+          expect(cartUtils.calculateItemTotal(item)).toBe(40000)
+        })
+
+        test('할인이 적용되지 않으면 할인 전 가격을 반환', () => {
+          const item: CartItem = { product: createTestProduct(), quantity: 1 }
+          expect(cartUtils.calculateItemTotal(item)).toBe(10000)
+        })
+      })
+
+      describe('calculateTotalBeforeDiscount', () => {
+        test('장바구니에 담긴 상품들의 할인 적용 전 총액을 계산', () => {
+          const cart: CartItem[] = [
+            { product: createTestProduct({ price: 10000 }), quantity: 2 },
+            { product: createTestProduct({ price: 20000 }), quantity: 1 },
+          ]
+          expect(cartUtils.calculateTotalBeforeDiscount(cart)).toBe(40000)
+        })
+
+        test('장바구니에 담긴 상품이 없으면 0을 반환', () => {
+          expect(cartUtils.calculateTotalBeforeDiscount([])).toBe(0)
+        })
+
+        test('할인 적용 전 총액을 계산', () => {
+          const cart: CartItem[] = [
+            { product: createTestProduct({ price: 10000 }), quantity: 2 },
+            { product: createTestProduct({ price: 20000 }), quantity: 1 },
+          ]
+          expect(cartUtils.calculateTotalBeforeDiscount(cart)).toBe(40000)
+        })
+      })
+
+      describe('calculateTotalAfterItemDiscounts', () => {
+        test('장바구니에 담긴 상품이 없으면 0을 반환', () => {
+          expect(cartUtils.calculateTotalAfterItemDiscounts([])).toBe(0)
+        })
+
+        test('할인 적용 후 총액을 계산', () => {
+          const cart: CartItem[] = [
+            { product: createTestProduct({ price: 10000 }), quantity: 2 },
+            { product: createTestProduct({ price: 20000 }), quantity: 1 },
+          ]
+          expect(cartUtils.calculateTotalAfterItemDiscounts(cart)).toBe(38000)
+        })
+      })
+
+      describe('applyCouponDiscount', () => {
+        test('할인 적용 후 금액을 반환', () => {
+          const coupon: Coupon = { name: 'Test Coupon', code: 'TEST', discountType: 'amount', discountValue: 5000 }
+          expect(cartUtils.applyCouponDiscount(10000, coupon)).toBe(5000)
+        })
+
+        test('쿠폰이 없으면 할인 적용 전 금액을 반환', () => {
+          expect(cartUtils.applyCouponDiscount(10000, null)).toBe(10000)
+        })
+      })
+
+      describe('calculateTotalDiscount', () => {
+        test('총 할인 금액을 계산', () => {
+          expect(cartUtils.calculateTotalDiscount(10000, 5000)).toBe(5000)
+        })
+      })
+
+      describe('roundAmount', () => {
+        test('소수점 이하를 반올림하여 정수로 변환', () => {
+          expect(cartUtils.roundAmount(100.5)).toBe(101)
+          expect(cartUtils.roundAmount(100.4)).toBe(100)
+        })
+      })
+
+      describe('calculateCartTotal', () => {
+        test('총액 정보를 반환', () => {
+          const cart: CartItem[] = [
+            { product: createTestProduct({ price: 10000 }), quantity: 2 },
+            { product: createTestProduct({ price: 20000 }), quantity: 1 },
+          ]
+          const coupon: Coupon = { name: 'Test Coupon', code: 'TEST', discountType: 'amount', discountValue: 5000 }
+
+          const result = cartUtils.calculateCartTotal(cart, coupon)
+          expect(result.totalBeforeDiscount).toBe(40000)
+          expect(result.totalAfterDiscount).toBe(33000)
+          expect(result.totalDiscount).toBe(7000)
+        })
+      })
+
+      describe('getMaxDiscount', () => {
+        test('최대 할인율을 반환', () => {
+          const discounts: Discount[] = [
+            { quantity: 2, rate: 0.1 },
+            { quantity: 5, rate: 0.2 },
+          ]
+          expect(cartUtils.getMaxDiscount(discounts)).toBe(0.2)
+        })
+      })
+
+      describe('discountFormat', () => {
+        test('할인 형식으로 %를 반환', () => {
+          const coupon: Coupon = { name: '10% 할인', code: '10%', discountType: 'percentage', discountValue: 10 }
+          expect(cartUtils.discountFormat(coupon)).toBe('%')
+        })
+
+        test('할인 형식을 원을 반환', () => {
+          const coupon: Coupon = { name: '5000원 할인', code: '5000', discountType: 'amount', discountValue: 5000 }
+          expect(cartUtils.discountFormat(coupon)).toBe('원')
+        })
+      })
+
+      describe('formatKrPrice', () => {
+        test('숫자나 문자 형식에 콤마 추가후 문자로 반횐', () => {
+          expect(cartUtils.formatKrPrice(10000)).toBe('10,000')
+        })
+      })
     })
 
-    test('새로운 hook 함수르 만든 후에 테스트 코드를 작성해서 실행해보세요', () => {
-      expect(true).toBe(false)
+    describe('hooks', () => {
+      describe('useAccordion', () => {
+        test('초기 상태는 빈 Set이어야 한다', () => {
+          const { result } = renderHook(() => useAccordion())
+          expect(result.current.openItems.size).toBe(0)
+        })
+
+        test('토글 기능 테스트', () => {
+          const { result } = renderHook(() => useAccordion())
+
+          // 아이템 추가
+          act(() => {
+            result.current.toggleProducts('item1')
+          })
+          expect(result.current.openItems.has('item1')).toBe(true)
+          expect(result.current.openItems.size).toBe(1)
+
+          // 같은 아이템 제거
+          act(() => {
+            result.current.toggleProducts('item1')
+          })
+          expect(result.current.openItems.has('item1')).toBe(false)
+          expect(result.current.openItems.size).toBe(0)
+        })
+
+        test('여러 아이템 상태 관리', () => {
+          const { result } = renderHook(() => useAccordion())
+
+          // 여러 아이템 추가
+          act(() => {
+            result.current.toggleProducts('item1')
+            result.current.toggleProducts('item2')
+          })
+          expect(result.current.openItems.size).toBe(2)
+          expect(result.current.openItems.has('item1')).toBe(true)
+          expect(result.current.openItems.has('item2')).toBe(true)
+
+          // 하나의 아이템 제거
+          act(() => {
+            result.current.toggleProducts('item1')
+          })
+          expect(result.current.openItems.size).toBe(1)
+          expect(result.current.openItems.has('item1')).toBe(false)
+          expect(result.current.openItems.has('item2')).toBe(true)
+        })
+
+        test('Set 불변성 보장', () => {
+          const { result } = renderHook(() => useAccordion())
+          const initialSet = result.current.openItems
+
+          act(() => {
+            result.current.toggleProducts('item1')
+          })
+
+          expect(result.current.openItems).not.toBe(initialSet)
+        })
+      })
+
+      describe('useCouponManager', () => {
+        const mockOnCouponAdd = vi.fn()
+        const defaultProps = {
+          onCouponAdd: mockOnCouponAdd,
+        }
+
+        const initialCouponState: Coupon = {
+          name: '',
+          code: '',
+          discountType: 'percentage',
+          discountValue: 0,
+        }
+
+        beforeEach(() => {
+          mockOnCouponAdd.mockClear()
+        })
+
+        test('초기 상태가 올바르게 설정되어야 한다', () => {
+          const { result } = renderHook(() => useCouponManager(defaultProps))
+          expect(result.current.newCoupon).toEqual(initialCouponState)
+        })
+
+        describe('쿠폰 정보 변경', () => {
+          test('텍스트와 숫자 입력값을 처리해야 한다', () => {
+            const { result } = renderHook(() => useCouponManager(defaultProps))
+
+            act(() => {
+              // 쿠폰명 변경
+              result.current.handleChangeCoupon({
+                target: { name: 'name', value: 'Summer Sale' },
+              } as React.ChangeEvent<HTMLInputElement>)
+
+              // 할인값 변경
+              result.current.handleChangeCoupon({
+                target: { name: 'discountValue', value: '10' },
+              } as React.ChangeEvent<HTMLInputElement>)
+            })
+
+            expect(result.current.newCoupon.name).toBe('Summer Sale')
+            expect(result.current.newCoupon.discountValue).toBe('10')
+          })
+
+          test('할인 유형 변경을 처리해야 한다', () => {
+            const { result } = renderHook(() => useCouponManager(defaultProps))
+
+            act(() => {
+              result.current.handleChangeCoupon({
+                target: { name: 'discountType', value: 'amount' },
+              } as React.ChangeEvent<HTMLSelectElement>)
+            })
+
+            expect(result.current.newCoupon.discountType).toBe('amount')
+          })
+        })
+
+        describe('쿠폰 추가', () => {
+          test('쿠폰 추가 시 콜백 호출 및 폼 초기화가 되어야 한다', () => {
+            const { result } = renderHook(() => useCouponManager(defaultProps))
+
+            // 쿠폰 데이터 설정
+            act(() => {
+              result.current.handleChangeCoupon({
+                target: { name: 'name', value: 'Summer Sale' },
+              } as React.ChangeEvent<HTMLInputElement>)
+              result.current.handleChangeCoupon({
+                target: { name: 'code', value: 'SUMMER2024' },
+              } as React.ChangeEvent<HTMLInputElement>)
+            })
+
+            // 쿠폰 추가
+            act(() => {
+              result.current.handleAddCoupon()
+            })
+
+            // 콜백 호출 확인
+            expect(mockOnCouponAdd).toHaveBeenCalledWith({
+              ...initialCouponState,
+              name: 'Summer Sale',
+              code: 'SUMMER2024',
+            })
+
+            // 폼 초기화 확인
+            expect(result.current.newCoupon).toEqual(initialCouponState)
+          })
+        })
+      })
+
+      describe('useProductManager', () => {
+        const mockProduct: Product = {
+          id: '1',
+          name: 'Test Product',
+          price: 1000,
+          stock: 10,
+          discounts: [],
+        }
+
+        const mockProps = {
+          products: [mockProduct],
+          onProductUpdate: vi.fn(),
+          onProductAdd: vi.fn(),
+        }
+
+        beforeEach(() => {
+          mockProps.onProductUpdate.mockClear()
+          mockProps.onProductAdd.mockClear()
+        })
+
+        test('초기 상태가 올바르게 설정되어야 한다', () => {
+          const { result } = renderHook(() => useProductManager(mockProps))
+
+          expect(result.current.editingProduct).toBeNull()
+          expect(result.current.isNewProductForm).toBeFalsy()
+          expect(result.current.newDiscount).toEqual({ quantity: 0, rate: 0 })
+        })
+
+        describe('제품 수정', () => {
+          test('제품 수정 모드 진입/완료가 정상 동작해야 한다', () => {
+            const { result } = renderHook(() => useProductManager(mockProps))
+
+            act(() => {
+              result.current.handleEditProduct(mockProduct)
+            })
+            expect(result.current.editingProduct).toEqual(mockProduct)
+
+            act(() => {
+              result.current.handleEditComplete()
+            })
+            expect(result.current.editingProduct).toBeNull()
+            expect(mockProps.onProductUpdate).toHaveBeenCalledWith(mockProduct)
+          })
+
+          test('재고 수정이 정상 동작해야 한다', () => {
+            const { result } = renderHook(() => useProductManager(mockProps))
+            const newStock = 20
+
+            act(() => {
+              result.current.handleStockUpdate(mockProduct.id, newStock)
+            })
+
+            expect(mockProps.onProductUpdate).toHaveBeenCalledWith({
+              ...mockProduct,
+              stock: newStock,
+            })
+          })
+        })
+
+        describe('할인 관리', () => {
+          test('할인 추가/제거가 정상 동작해야 한다', () => {
+            const { result } = renderHook(() => useProductManager(mockProps))
+            const newDiscount = { quantity: 5, rate: 10 }
+
+            // 먼저 수정 모드로 진입
+            act(() => {
+              result.current.handleEditProduct(mockProduct)
+            })
+
+            // 할인 정보 설정 후 추가
+            act(() => {
+              result.current.setNewDiscount(newDiscount)
+            })
+
+            act(() => {
+              result.current.handleAddDiscount(mockProduct.id)
+            })
+
+            const expectedProduct = {
+              ...mockProduct,
+              discounts: [newDiscount],
+            }
+            expect(mockProps.onProductUpdate).toHaveBeenCalledWith(expectedProduct)
+
+            // 할인 제거
+            act(() => {
+              result.current.handleRemoveDiscount(mockProduct.id, 0)
+            })
+
+            expect(mockProps.onProductUpdate).toHaveBeenCalledWith({
+              ...mockProduct,
+              discounts: [],
+            })
+          })
+        })
+
+        describe('새 제품 추가', () => {
+          test('새 제품 추가가 정상 동작해야 한다', () => {
+            const { result } = renderHook(() => useProductManager(mockProps))
+            const newProduct = {
+              name: 'New Product',
+              price: 2000,
+              stock: 5,
+              discounts: [],
+            }
+
+            act(() => {
+              // 새 제품 폼 열기
+              result.current.toggleNewProductForm()
+            })
+
+            act(() => {
+              // 새 제품 정보 설정
+              result.current.setNewProduct(newProduct)
+            })
+
+            act(() => {
+              // 새 제품 추가
+              result.current.handleAddNewProduct()
+            })
+
+            // ID를 제외한 나머지 필드 검증
+            expect(mockProps.onProductAdd).toHaveBeenCalledWith(
+              expect.objectContaining({
+                ...newProduct,
+                id: expect.any(String),
+              }),
+            )
+            expect(result.current.isNewProductForm).toBeFalsy()
+          })
+        })
+      })
     })
   })
 })

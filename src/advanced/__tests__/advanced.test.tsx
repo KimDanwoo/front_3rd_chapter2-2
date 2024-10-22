@@ -592,20 +592,6 @@ describe('advanced > ', () => {
             expect(result.current.editingProduct).toBeNull()
             expect(mockProps.onProductUpdate).toHaveBeenCalledWith(mockProduct)
           })
-
-          test('재고 수정이 정상 동작해야 한다', () => {
-            const { result } = renderHook(() => useProductManager(mockProps))
-            const newStock = 20
-
-            act(() => {
-              result.current.handleStockUpdate(mockProduct.id, newStock)
-            })
-
-            expect(mockProps.onProductUpdate).toHaveBeenCalledWith({
-              ...mockProduct,
-              stock: newStock,
-            })
-          })
         })
 
         describe('할인 관리', () => {

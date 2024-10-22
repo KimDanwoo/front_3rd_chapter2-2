@@ -29,6 +29,7 @@ export default [
       'prefer-template': 'error', // 문자열 연결 시 템플릿 리터럴 사용 권장
       'no-nested-ternary': 'error', // 중첩된 삼항 연산자 금지
       'spaced-comment': ['error', 'always', { exceptions: ['-', '+'] }], // 주석 앞에 공백 추가
+      "react/jsx-newline": [1, { "prevent": false }] // JSX 요소를 여러 줄로 작성할 수 있도록 설정
     },
   },
 ]

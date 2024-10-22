@@ -6,7 +6,7 @@ type ButtonProps = {
   text: string
   onClick: () => void
   disabled?: boolean
-  color?: 'primary' | 'error' | 'info' | 'success' | 'disabled'
+  color?: 'primary' | 'error' | 'info' | 'success'
   size?: 'sm' | 'md' | 'lg'
 }
 
@@ -15,7 +15,6 @@ const colorMap = {
   success: 'bg-green-500 text-white hover:bg-green-600',
   info: 'bg-gray-300 text-black hover:bg-gray-400',
   error: 'bg-red-500 text-white hover:bg-red-600',
-  disabled: 'bg-gray-300 text-gray-500 cursor-not-allowed',
 } as const
 
 const sizeMap = {
@@ -30,16 +29,13 @@ export const Button: FC<ButtonProps> = memo(
     const sizeClass = sizeMap[size]
 
     const classNameProps = useMemo(
-      () => `rounded disabled:bg-gray-400 ${className} ${colorClass} ${sizeClass}`.trim(),
+      () =>
+        `${className} ${colorClass} ${sizeClass} rounded disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed`.trim(),
       [className, colorClass, sizeClass],
     )
 
-    const handleClick = useCallback(() => {
-      onClick()
-    }, [onClick])
-
     return (
-      <button className={classNameProps} onClick={handleClick} {...props}>
+      <button className={classNameProps} onClick={onClick} {...props}>
         {text}
       </button>
     )

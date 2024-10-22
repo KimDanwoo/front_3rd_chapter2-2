@@ -58,7 +58,7 @@ export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, on
           onClickAddProduct={handleAddNewProduct}
         />
 
-        <Box>
+        <Box className="mt-2">
           {products.map((product, index) => (
             <ProductItem key={index} product={product} index={index} toggleProducts={toggleProducts}>
               {openItems.has(product.id) && (

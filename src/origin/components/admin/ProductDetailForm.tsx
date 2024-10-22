@@ -1,6 +1,7 @@
 import { Discount, Product } from '@/types'
 import { Button, InputField } from '../common'
 import { FC } from 'react'
+import { containsEmpty } from '@/origin/hooks/utils'
 
 type ProductDetailFormProps = {
   product: Product
@@ -88,11 +89,24 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
               className="w-1/3 p-2 border rounded"
             />
 
-            <Button size="sm" text="할인 추가" className="w-1/3" onClick={() => onClickAddDiscount(product.id)} />
+            <Button
+              size="sm"
+              text="할인 추가"
+              className="w-1/3"
+              disabled={containsEmpty(discount.quantity, discount.rate)}
+              onClick={() => onClickAddDiscount(product.id)}
+            />
           </div>
         </div>
 
-        <Button color="success" size="sm" text="수정 완료" onClick={onClickEditComplete} />
+        <Button
+          color="success"
+          size="sm"
+          text="수정 완료"
+          disabled={!productForm.name || !productForm.price || !productForm.stock}
+          className="mt-2"
+          onClick={onClickEditComplete}
+        />
       </div>
     </div>
   )

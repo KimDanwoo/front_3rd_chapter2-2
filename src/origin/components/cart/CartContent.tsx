@@ -29,16 +29,18 @@ export const CartContent: FC<CardItemProps> = ({ item, onClickUpdateQuantity, on
         <Button
           size="sm"
           color="info"
-          onClick={() => onClickUpdateQuantity(item.product.id, item.quantity - 1)}
           text="-"
+          className="mr-2"
+          onClick={() => onClickUpdateQuantity(item.product.id, item.quantity - 1)}
         />
         <Button
           size="sm"
           color="info"
-          onClick={() => onClickUpdateQuantity(item.product.id, item.quantity + 1)}
           text="+"
+          className="mr-2"
+          onClick={() => onClickUpdateQuantity(item.product.id, item.quantity + 1)}
         />
-        <Button size="sm" color="error" onClick={() => onClickRemoveCart(item.product.id)} text="삭제" />
+        <Button size="sm" color="error" text="삭제" onClick={() => onClickRemoveCart(item.product.id)} />
       </div>
     </div>
   )

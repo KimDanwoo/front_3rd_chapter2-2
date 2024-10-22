@@ -1,8 +1,7 @@
-import { FC, useMemo } from 'react'
+import { FC } from 'react'
 import { Card } from '../layouts'
 import { Product } from '@/types'
-import { Button } from '../common'
-import { isAllEmpty } from '@/origin/hooks/utils'
+import { Button, InputField } from '../common'
 
 type ProductFormProps = {
   isVisible: boolean
@@ -11,11 +10,6 @@ type ProductFormProps = {
   onClickAddProduct: () => void
 }
 export const ProductForm: FC<ProductFormProps> = ({ isVisible, product, onChangeProduct, onClickAddProduct }) => {
-  const buttonColor = useMemo(() => {
-    const isDisabled = isAllEmpty(product.name, product.price, product.stock)
-    return isDisabled ? 'disabled' : 'primary'
-  }, [product])
-
   return (
     isVisible && (
       <Card title="새 상품 추가">
@@ -24,12 +18,11 @@ export const ProductForm: FC<ProductFormProps> = ({ isVisible, product, onChange
             상품명
           </label>
 
-          <input
+          <InputField
             id="productName"
             type="text"
             value={product.name}
             onChange={(e) => onChangeProduct({ ...product, name: e.target.value })}
-            className="w-full p-2 border rounded"
           />
         </div>
         <div className="mb-2">
@@ -37,12 +30,11 @@ export const ProductForm: FC<ProductFormProps> = ({ isVisible, product, onChange
             가격
           </label>
 
-          <input
+          <InputField
             id="productPrice"
             type="number"
             value={product.price}
             onChange={(e) => onChangeProduct({ ...product, price: parseInt(e.target.value) })}
-            className="w-full p-2 border rounded"
           />
         </div>
         <div className="mb-2">
@@ -50,7 +42,7 @@ export const ProductForm: FC<ProductFormProps> = ({ isVisible, product, onChange
             재고
           </label>
 
-          <input
+          <InputField
             id="productStock"
             type="number"
             value={product.stock}
@@ -58,7 +50,7 @@ export const ProductForm: FC<ProductFormProps> = ({ isVisible, product, onChange
             className="w-full p-2 border rounded"
           />
         </div>
-        <Button color={buttonColor} text="추가" onClick={onClickAddProduct} />
+        <Button text="추가" className="w-full" onClick={onClickAddProduct} />
       </Card>
     )
   )

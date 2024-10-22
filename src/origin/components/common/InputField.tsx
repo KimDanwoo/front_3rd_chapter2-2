@@ -14,7 +14,11 @@ export const InputField = ({ ...props }: InputFieldProps) => {
   const className = props.className || 'w-full p-2 border rounded'
   return (
     <>
-      {label && <label className="block mb-1">{label}: </label>}
+      {label && (
+        <label className="block mb-1 block text-sm font-medium text-gray-700" htmlFor={inputProps.id}>
+          {label}:
+        </label>
+      )}
 
       <input {...inputProps} className={className} />
     </>

@@ -7,7 +7,6 @@ type ProductDetailFormProps = {
   productForm: Product
   discount: Discount
   onChangeProduct: (e: React.ChangeEvent<HTMLInputElement>) => void
-  onChangeStock: (productId: string, newStock: number) => void
   onChangeDiscount: (discount: Discount) => void
   onClickRemoveDiscount: (productId: string, index: number) => void
   onClickAddDiscount: (productId: string) => void
@@ -19,7 +18,6 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
   productForm,
   discount,
   onChangeProduct,
-  onChangeStock,
   onChangeDiscount,
   onClickRemoveDiscount,
   onClickAddDiscount,
@@ -59,8 +57,10 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
 
           <input
             type="number"
+            id={product.id}
+            name="stock"
             value={productForm.stock}
-            onChange={(e) => onChangeStock(product.id, parseInt(e.target.value))}
+            onChange={onChangeProduct}
             className="w-full p-2 border rounded"
           />
         </div>

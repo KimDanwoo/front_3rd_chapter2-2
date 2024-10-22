@@ -19,12 +19,10 @@ export const useProductManager = ({ products, onProductUpdate, onProductAdd }: U
     discounts: [],
   })
 
-  // handleEditProduct 함수 수정
   const handleEditProduct = (product: Product) => {
     setEditingProduct({ ...product })
   }
 
-  // 새로운 핸들러 함수 추가
   const handleUpdateProduct = useCallback(
     (e: ChangeEvent) => {
       const { id, name, value } = e.target as HTMLInputElement
@@ -36,25 +34,12 @@ export const useProductManager = ({ products, onProductUpdate, onProductAdd }: U
     [editingProduct],
   )
 
-  // 수정 완료 핸들러 함수 추가
   const handleEditComplete = useCallback(() => {
     if (editingProduct) {
       onProductUpdate(editingProduct)
       setEditingProduct(null)
     }
   }, [editingProduct])
-
-  const handleStockUpdate = useCallback(
-    (productId: string, newStock: number) => {
-      const updatedProduct = products.find((p) => p.id === productId)
-      if (updatedProduct) {
-        const newProduct = { ...updatedProduct, stock: newStock }
-        onProductUpdate(newProduct)
-        setEditingProduct(newProduct)
-      }
-    },
-    [products],
-  )
 
   const handleAddDiscount = useCallback(
     (productId: string) => {
@@ -112,7 +97,6 @@ export const useProductManager = ({ products, onProductUpdate, onProductAdd }: U
     setNewDiscount,
     toggleNewProductForm,
     handleEditProduct,
-    handleStockUpdate,
     handleEditComplete,
     handleAddDiscount,
     handleAddNewProduct,

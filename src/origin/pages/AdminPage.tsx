@@ -34,7 +34,6 @@ export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, on
     setNewDiscount,
     toggleNewProductForm,
     handleEditProduct,
-    handleStockUpdate,
     handleEditComplete,
     handleAddDiscount,
     handleAddNewProduct,
@@ -52,9 +51,12 @@ export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, on
           onClick={toggleNewProductForm}
         />
 
-        {isNewProductForm && (
-          <ProductForm product={newProduct} onChangeProduct={setNewProduct} onClickAddProduct={handleAddNewProduct} />
-        )}
+        <ProductForm
+          isVisible={isNewProductForm}
+          product={newProduct}
+          onChangeProduct={setNewProduct}
+          onClickAddProduct={handleAddNewProduct}
+        />
 
         <Box>
           {products.map((product, index) => (
@@ -67,7 +69,6 @@ export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, on
                       productForm={editingProduct}
                       discount={newDiscount}
                       onChangeProduct={handleUpdateProduct}
-                      onChangeStock={handleStockUpdate}
                       onChangeDiscount={setNewDiscount}
                       onClickRemoveDiscount={handleRemoveDiscount}
                       onClickEditComplete={handleEditComplete}

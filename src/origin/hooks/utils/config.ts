@@ -1,7 +1,7 @@
 type EmptyCheckValue = string | number | boolean | null | undefined | object | any[]
 
-export const isAllEmpty = (...values: EmptyCheckValue[]): boolean => {
-  return values.every((value) => isEmpty(value))
+export const containsEmpty = (...values: EmptyCheckValue[]): boolean => {
+  return values.some((value) => isEmpty(value))
 }
 
 export const isEmpty = (value: EmptyCheckValue): boolean => {
@@ -9,7 +9,7 @@ export const isEmpty = (value: EmptyCheckValue): boolean => {
 
   if (typeof value === 'boolean') return false
 
-  if (typeof value === 'number') return Number.isNaN(value)
+  if (typeof value === 'number') return Number.isNaN(value) || value === 0
 
   if (typeof value === 'string') return value.trim() === ''
 

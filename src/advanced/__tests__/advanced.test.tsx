@@ -529,6 +529,9 @@ describe('advanced > ', () => {
               result.current.handleChangeCoupon({
                 target: { name: 'code', value: 'SUMMER2024' },
               } as React.ChangeEvent<HTMLInputElement>)
+              result.current.handleChangeCoupon({
+                target: { name: 'discountValue', value: '5000' },
+              } as React.ChangeEvent<HTMLInputElement>)
             })
 
             // 쿠폰 추가
@@ -541,6 +544,7 @@ describe('advanced > ', () => {
               ...initialCouponState,
               name: 'Summer Sale',
               code: 'SUMMER2024',
+              discountValue: '5000',
             })
 
             // 폼 초기화 확인

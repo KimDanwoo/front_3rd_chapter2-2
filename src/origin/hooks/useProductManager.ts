@@ -1,5 +1,6 @@
 import { ChangeEvent, useCallback, useState } from 'react'
 import { Product, Discount } from '../../types'
+import { isAllEmpty } from './utils'
 
 interface UseProductManagerProps {
   products: Product[]
@@ -44,6 +45,8 @@ export const useProductManager = ({ products, onProductUpdate, onProductAdd }: U
   const handleAddDiscount = useCallback(
     (productId: string) => {
       const updatedProduct = products.find((p) => p.id === productId)
+      if (isAllEmpty(newDiscount.quantity, newDiscount.rate)) return
+
       if (updatedProduct && editingProduct) {
         const newProduct = {
           ...updatedProduct,
@@ -74,6 +77,9 @@ export const useProductManager = ({ products, onProductUpdate, onProductAdd }: U
 
   const handleAddNewProduct = useCallback(() => {
     const productWithId = { ...newProduct, id: Date.now().toString() }
+    const { name, price, stock } = productWithId
+    if (isAllEmpty(name, price, stock)) return
+
     onProductAdd(productWithId)
     setNewProduct({
       name: '',

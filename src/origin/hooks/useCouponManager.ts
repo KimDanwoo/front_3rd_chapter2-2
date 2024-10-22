@@ -24,6 +24,8 @@ export const useCouponManager = ({ onCouponAdd }: CouponManagerProps) => {
    * @returns {void}
    */
   const handleAddCoupon = useCallback(() => {
+    if (!newCoupon.name || !newCoupon.code || !newCoupon.discountValue) return
+
     onCouponAdd(newCoupon)
     setNewCoupon({ name: '', code: '', discountType: 'percentage', discountValue: 0 })
   }, [newCoupon])

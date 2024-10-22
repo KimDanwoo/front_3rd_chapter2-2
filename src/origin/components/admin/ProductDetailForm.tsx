@@ -1,5 +1,5 @@
 import { Discount, Product } from '@/types'
-import { Button } from '../common'
+import { Button, InputField } from '../common'
 import { FC } from 'react'
 
 type ProductDetailFormProps = {
@@ -27,41 +27,35 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
     <div className="mt-2">
       <div>
         <div className="mb-4">
-          <label className="block mb-1">상품명: </label>
-
-          <input
+          <InputField
+            label="상품명"
             type="text"
             name="name"
             id={product.id}
             value={productForm.name}
             onChange={onChangeProduct}
-            className="w-full p-2 border rounded"
           />
         </div>
 
         <div className="mb-4">
-          <label className="block mb-1">가격: </label>
-
-          <input
+          <InputField
+            label="가격"
             type="number"
             id={product.id}
             name="price"
             value={productForm.price}
             onChange={onChangeProduct}
-            className="w-full p-2 border rounded"
           />
         </div>
 
         <div className="mb-4">
-          <label className="block mb-1">재고: </label>
-
-          <input
+          <InputField
+            label="재고"
             type="number"
             id={product.id}
             name="stock"
             value={productForm.stock}
             onChange={onChangeProduct}
-            className="w-full p-2 border rounded"
           />
         </div>
 
@@ -79,15 +73,14 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
           ))}
 
           <div className="flex space-x-2">
-            <input
+            <InputField
               type="number"
               placeholder="수량"
               value={discount.quantity}
               onChange={(e) => onChangeDiscount({ ...discount, quantity: parseInt(e.target.value) })}
               className="w-1/3 p-2 border rounded"
             />
-
-            <input
+            <InputField
               type="number"
               placeholder="할인율 (%)"
               value={discount.rate * 100}

@@ -1,7 +1,8 @@
-import { FC } from 'react'
+import { FC, useMemo } from 'react'
 import { Card } from '../layouts'
 import { Product } from '@/types'
 import { Button } from '../common'
+import { isAllEmpty } from '@/origin/hooks/utils'
 
 type ProductFormProps = {
   isVisible: boolean
@@ -10,6 +11,11 @@ type ProductFormProps = {
   onClickAddProduct: () => void
 }
 export const ProductForm: FC<ProductFormProps> = ({ isVisible, product, onChangeProduct, onClickAddProduct }) => {
+  const buttonColor = useMemo(() => {
+    const isDisabled = isAllEmpty(product.name, product.price, product.stock)
+    return isDisabled ? 'disabled' : 'primary'
+  }, [product])
+
   return (
     isVisible && (
       <Card title="새 상품 추가">
@@ -52,7 +58,7 @@ export const ProductForm: FC<ProductFormProps> = ({ isVisible, product, onChange
             className="w-full p-2 border rounded"
           />
         </div>
-        <Button text="추가" onClick={onClickAddProduct} />
+        <Button color={buttonColor} text="추가" onClick={onClickAddProduct} />
       </Card>
     )
   )

@@ -10,6 +10,8 @@ type CouponFormProps = {
 }
 
 export const CouponForm: FC<CouponFormProps> = ({ newCoupon, onChangeCoupon, onClickAddCoupon }) => {
+  const isDisabledSubmit = !newCoupon.name || !newCoupon.code || !newCoupon.discountValue
+
   return (
     <Box>
       <input
@@ -51,7 +53,12 @@ export const CouponForm: FC<CouponFormProps> = ({ newCoupon, onChangeCoupon, onC
         />
       </div>
 
-      <Button color="success" text="쿠폰 추가" className="w-full" onClick={onClickAddCoupon} />
+      <Button
+        color={isDisabledSubmit ? 'disabled' : 'success'}
+        text="쿠폰 추가"
+        className="w-full"
+        onClick={onClickAddCoupon}
+      />
     </Box>
   )
 }

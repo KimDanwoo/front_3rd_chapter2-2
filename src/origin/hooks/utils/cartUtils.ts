@@ -182,3 +182,4 @@ export function discountFormat(coupon: Coupon) {
 export function formatKrPrice(amount: number): string {
   return amount.toLocaleString()
 }
+

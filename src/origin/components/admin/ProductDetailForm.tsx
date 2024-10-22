@@ -4,26 +4,26 @@ import { FC } from 'react'
 
 type ProductDetailFormProps = {
   product: Product
-  editingProduct: Product
-  newDiscount: Discount
-  handleUpdateProduct: (e: React.ChangeEvent<HTMLInputElement>) => void
-  handleStockUpdate: (productId: string, newStock: number) => void
-  setNewDiscount: (discount: Discount) => void
-  handleRemoveDiscount: (productId: string, index: number) => void
-  handleAddDiscount: (productId: string) => void
-  handleEditComplete: () => void
+  productForm: Product
+  discount: Discount
+  onChangeProduct: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onChangeStock: (productId: string, newStock: number) => void
+  onChangeDiscount: (discount: Discount) => void
+  onClickRemoveDiscount: (productId: string, index: number) => void
+  onClickAddDiscount: (productId: string) => void
+  onClickEditComplete: () => void
 }
 
 export const ProductDetailForm: FC<ProductDetailFormProps> = ({
   product,
-  editingProduct,
-  newDiscount,
-  handleUpdateProduct,
-  handleStockUpdate,
-  setNewDiscount,
-  handleRemoveDiscount,
-  handleAddDiscount,
-  handleEditComplete,
+  productForm,
+  discount,
+  onChangeProduct,
+  onChangeStock,
+  onChangeDiscount,
+  onClickRemoveDiscount,
+  onClickAddDiscount,
+  onClickEditComplete,
 }) => {
   return (
     <div className="mt-2">
@@ -35,8 +35,8 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
             type="text"
             name="name"
             id={product.id}
-            value={editingProduct.name}
-            onChange={handleUpdateProduct}
+            value={productForm.name}
+            onChange={onChangeProduct}
             className="w-full p-2 border rounded"
           />
         </div>
@@ -48,8 +48,8 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
             type="number"
             id={product.id}
             name="price"
-            value={editingProduct.price}
-            onChange={handleUpdateProduct}
+            value={productForm.price}
+            onChange={onChangeProduct}
             className="w-full p-2 border rounded"
           />
         </div>
@@ -59,8 +59,8 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
 
           <input
             type="number"
-            value={editingProduct.stock}
-            onChange={(e) => handleStockUpdate(product.id, parseInt(e.target.value))}
+            value={productForm.stock}
+            onChange={(e) => onChangeStock(product.id, parseInt(e.target.value))}
             className="w-full p-2 border rounded"
           />
         </div>
@@ -69,12 +69,12 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
         <div>
           <h4 className="text-lg font-semibold mb-2">할인 정보</h4>
 
-          {editingProduct.discounts.map((discount, index) => (
+          {productForm.discounts.map((discount, index) => (
             <div key={index} className="flex justify-between items-center mb-2">
               <span>
                 {discount.quantity}개 이상 구매 시 {discount.rate * 100}% 할인
               </span>
-              <Button color="error" size="sm" text="삭제" onClick={() => handleRemoveDiscount(product.id, index)} />
+              <Button color="error" size="sm" text="삭제" onClick={() => onClickRemoveDiscount(product.id, index)} />
             </div>
           ))}
 
@@ -82,24 +82,24 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
             <input
               type="number"
               placeholder="수량"
-              value={newDiscount.quantity}
-              onChange={(e) => setNewDiscount({ ...newDiscount, quantity: parseInt(e.target.value) })}
+              value={discount.quantity}
+              onChange={(e) => onChangeDiscount({ ...discount, quantity: parseInt(e.target.value) })}
               className="w-1/3 p-2 border rounded"
             />
 
             <input
               type="number"
               placeholder="할인율 (%)"
-              value={newDiscount.rate * 100}
-              onChange={(e) => setNewDiscount({ ...newDiscount, rate: parseInt(e.target.value) / 100 })}
+              value={discount.rate * 100}
+              onChange={(e) => onChangeDiscount({ ...discount, rate: parseInt(e.target.value) / 100 })}
               className="w-1/3 p-2 border rounded"
             />
 
-            <Button size="sm" text="할인 추가" className="w-1/3" onClick={() => handleAddDiscount(product.id)} />
+            <Button size="sm" text="할인 추가" className="w-1/3" onClick={() => onClickAddDiscount(product.id)} />
           </div>
         </div>
 
-        <Button color="success" size="sm" text="수정 완료" onClick={handleEditComplete} />
+        <Button color="success" size="sm" text="수정 완료" onClick={onClickEditComplete} />
       </div>
     </div>
   )

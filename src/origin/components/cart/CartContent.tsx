@@ -5,11 +5,11 @@ import { Button } from '@components/common'
 
 type CardItemProps = {
   item: CartItem
-  updateQuantity: (productId: string, newQuantity: number) => void
-  removeFromCart: (productId: string) => void
+  onClickUpdateQuantity: (productId: string, newQuantity: number) => void
+  onClickRemoveCart: (productId: string) => void
 }
 
-export const CartContent: FC<CardItemProps> = ({ item, updateQuantity, removeFromCart }) => {
+export const CartContent: FC<CardItemProps> = ({ item, onClickUpdateQuantity, onClickRemoveCart }) => {
   const appliedDiscount = getMaxApplicableDiscount(item)
   return (
     <div key={item.product.id} className="flex justify-between items-center bg-white p-3 rounded shadow">
@@ -26,9 +26,19 @@ export const CartContent: FC<CardItemProps> = ({ item, updateQuantity, removeFro
       </div>
 
       <div>
-        <Button size="sm" color="info" onClick={() => updateQuantity(item.product.id, item.quantity - 1)} text="-" />
-        <Button size="sm" color="info" onClick={() => updateQuantity(item.product.id, item.quantity + 1)} text="+" />
-        <Button size="sm" color="error" onClick={() => removeFromCart(item.product.id)} text="삭제" />
+        <Button
+          size="sm"
+          color="info"
+          onClick={() => onClickUpdateQuantity(item.product.id, item.quantity - 1)}
+          text="-"
+        />
+        <Button
+          size="sm"
+          color="info"
+          onClick={() => onClickUpdateQuantity(item.product.id, item.quantity + 1)}
+          text="+"
+        />
+        <Button size="sm" color="error" onClick={() => onClickRemoveCart(item.product.id)} text="삭제" />
       </div>
     </div>
   )

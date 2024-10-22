@@ -5,11 +5,11 @@ import { Button } from '../common'
 
 type CouponFormProps = {
   newCoupon: Coupon
-  handleChangeCoupon: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
-  handleAddCoupon: () => void
+  onChangeCoupon: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
+  onClickAddCoupon: () => void
 }
 
-export const CouponForm: FC<CouponFormProps> = ({ newCoupon, handleChangeCoupon, handleAddCoupon }) => {
+export const CouponForm: FC<CouponFormProps> = ({ newCoupon, onChangeCoupon, onClickAddCoupon }) => {
   return (
     <Box>
       <input
@@ -17,7 +17,7 @@ export const CouponForm: FC<CouponFormProps> = ({ newCoupon, handleChangeCoupon,
         placeholder="쿠폰 이름"
         name="name"
         value={newCoupon.name}
-        onChange={handleChangeCoupon}
+        onChange={onChangeCoupon}
         className="w-full p-2 border rounded"
       />
 
@@ -26,7 +26,7 @@ export const CouponForm: FC<CouponFormProps> = ({ newCoupon, handleChangeCoupon,
         placeholder="쿠폰 코드"
         name="code"
         value={newCoupon.code}
-        onChange={handleChangeCoupon}
+        onChange={onChangeCoupon}
         className="w-full p-2 border rounded"
       />
 
@@ -34,7 +34,7 @@ export const CouponForm: FC<CouponFormProps> = ({ newCoupon, handleChangeCoupon,
         <select
           value={newCoupon.discountType}
           name="discountType"
-          onChange={handleChangeCoupon}
+          onChange={onChangeCoupon}
           className="w-full p-2 border rounded"
         >
           <option value="amount">금액(원)</option>
@@ -46,11 +46,12 @@ export const CouponForm: FC<CouponFormProps> = ({ newCoupon, handleChangeCoupon,
           placeholder="할인 값"
           name="discountValue"
           value={newCoupon.discountValue}
-          onChange={handleChangeCoupon}
+          onChange={onChangeCoupon}
           className="w-full p-2 border rounded"
         />
       </div>
-      <Button color="success" text="쿠폰 추가" className="w-full" onClick={handleAddCoupon} />
+
+      <Button color="success" text="쿠폰 추가" className="w-full" onClick={onClickAddCoupon} />
     </Box>
   )
 }

@@ -4,11 +4,11 @@ import { Product } from '@/types'
 import { Button } from '../common'
 
 type ProductFormProps = {
-  newProduct: Omit<Product, 'id'>
-  setNewProduct: (product: Omit<Product, 'id'>) => void
-  handleAddNewProduct: () => void
+  product: Omit<Product, 'id'>
+  onChangeProduct: (product: Omit<Product, 'id'>) => void
+  onClickAddProduct: () => void
 }
-export const ProductForm: FC<ProductFormProps> = ({ newProduct, setNewProduct, handleAddNewProduct }) => {
+export const ProductForm: FC<ProductFormProps> = ({ product, onChangeProduct, onClickAddProduct }) => {
   return (
     <Card title="새 상품 추가">
       <div className="mb-2">
@@ -19,8 +19,8 @@ export const ProductForm: FC<ProductFormProps> = ({ newProduct, setNewProduct, h
         <input
           id="productName"
           type="text"
-          value={newProduct.name}
-          onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+          value={product.name}
+          onChange={(e) => onChangeProduct({ ...product, name: e.target.value })}
           className="w-full p-2 border rounded"
         />
       </div>
@@ -32,8 +32,8 @@ export const ProductForm: FC<ProductFormProps> = ({ newProduct, setNewProduct, h
         <input
           id="productPrice"
           type="number"
-          value={newProduct.price}
-          onChange={(e) => setNewProduct({ ...newProduct, price: parseInt(e.target.value) })}
+          value={product.price}
+          onChange={(e) => onChangeProduct({ ...product, price: parseInt(e.target.value) })}
           className="w-full p-2 border rounded"
         />
       </div>
@@ -45,12 +45,12 @@ export const ProductForm: FC<ProductFormProps> = ({ newProduct, setNewProduct, h
         <input
           id="productStock"
           type="number"
-          value={newProduct.stock}
-          onChange={(e) => setNewProduct({ ...newProduct, stock: parseInt(e.target.value) })}
+          value={product.stock}
+          onChange={(e) => onChangeProduct({ ...product, stock: parseInt(e.target.value) })}
           className="w-full p-2 border rounded"
         />
       </div>
-      <Button text="추가" onClick={handleAddNewProduct} />
+      <Button text="추가" onClick={onClickAddProduct} />
     </Card>
   )
 }

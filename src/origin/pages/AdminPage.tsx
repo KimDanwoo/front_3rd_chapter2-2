@@ -53,32 +53,28 @@ export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, on
         />
 
         {isNewProductForm && (
-          <ProductForm
-            newProduct={newProduct}
-            setNewProduct={setNewProduct}
-            handleAddNewProduct={handleAddNewProduct}
-          />
+          <ProductForm product={newProduct} onChangeProduct={setNewProduct} onClickAddProduct={handleAddNewProduct} />
         )}
 
         <Box>
           {products.map((product, index) => (
-            <ProductItem product={product} index={index} toggleProducts={toggleProducts}>
+            <ProductItem key={index} product={product} index={index} toggleProducts={toggleProducts}>
               {openItems.has(product.id) && (
                 <div className="mt-2">
                   {editingProduct?.id === product.id ? (
                     <ProductDetailForm
                       product={product}
-                      editingProduct={editingProduct}
-                      newDiscount={newDiscount}
-                      handleUpdateProduct={handleUpdateProduct}
-                      handleStockUpdate={handleStockUpdate}
-                      setNewDiscount={setNewDiscount}
-                      handleRemoveDiscount={handleRemoveDiscount}
-                      handleEditComplete={handleEditComplete}
-                      handleAddDiscount={handleAddDiscount}
+                      productForm={editingProduct}
+                      discount={newDiscount}
+                      onChangeProduct={handleUpdateProduct}
+                      onChangeStock={handleStockUpdate}
+                      onChangeDiscount={setNewDiscount}
+                      onClickRemoveDiscount={handleRemoveDiscount}
+                      onClickEditComplete={handleEditComplete}
+                      onClickAddDiscount={handleAddDiscount}
                     />
                   ) : (
-                    <ProductDetail product={product} handleEditProduct={handleEditProduct} />
+                    <ProductDetail product={product} onClickEditProduct={handleEditProduct} />
                   )}
                 </div>
               )}
@@ -89,7 +85,7 @@ export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, on
 
       <Section title="쿠폰 관리">
         <Card>
-          <CouponForm newCoupon={newCoupon} handleChangeCoupon={handleChangeCoupon} handleAddCoupon={handleAddCoupon} />
+          <CouponForm newCoupon={newCoupon} onChangeCoupon={handleChangeCoupon} onClickAddCoupon={handleAddCoupon} />
           <CouponList coupons={coupons} />
         </Card>
       </Section>

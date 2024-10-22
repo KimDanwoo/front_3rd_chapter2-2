@@ -45,3 +45,6 @@ export const Button: FC<ButtonProps> = memo(
     )
   },
 )
+
+// 컴포넌트 디버깅을 위한 displayName 설정
+Button.displayName = 'Button'

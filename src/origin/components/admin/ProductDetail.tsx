@@ -4,9 +4,9 @@ import { Product } from '@/types'
 
 type ProductDetailProps = {
   product: Product
-  handleEditProduct: (product: Product) => void
+  onClickEditProduct: (product: Product) => void
 }
-export const ProductDetail: FC<ProductDetailProps> = ({ product, handleEditProduct }) => {
+export const ProductDetail: FC<ProductDetailProps> = ({ product, onClickEditProduct }) => {
   return (
     <div>
       {product.discounts.map((discount, index) => (
@@ -17,7 +17,7 @@ export const ProductDetail: FC<ProductDetailProps> = ({ product, handleEditProdu
         </div>
       ))}
 
-      <Button data-testid="modify-button" size="sm" text="수정" onClick={() => handleEditProduct(product)} />
+      <Button data-testid="modify-button" size="sm" text="수정" onClick={() => onClickEditProduct(product)} />
     </div>
   )
 }

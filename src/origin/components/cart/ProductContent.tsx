@@ -5,10 +5,10 @@ import { Product } from '@/types'
 type ProductContentProps = {
   product: Product
   getRemainingStock: (id: string, stock: number) => number
-  addToCart: (product: Product) => void
+  onClickAddToCart: (product: Product) => void
 }
 
-export const ProductContent: FC<ProductContentProps> = ({ product, getRemainingStock, addToCart }) => {
+export const ProductContent: FC<ProductContentProps> = ({ product, getRemainingStock, onClickAddToCart }) => {
   const { id, stock, name, price, discounts } = product
   const remainingStock = getRemainingStock(id, stock)
 
@@ -42,7 +42,7 @@ export const ProductContent: FC<ProductContentProps> = ({ product, getRemainingS
       )}
 
       <button
-        onClick={() => addToCart(product)}
+        onClick={() => onClickAddToCart(product)}
         className={`w-full px-3 py-1 rounded ${
           remainingStock ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
         }`}

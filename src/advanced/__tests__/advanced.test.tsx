@@ -1,9 +1,9 @@
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { act, fireEvent, render, renderHook, screen, within } from '@testing-library/react'
 import { CartPage } from '../../origin/pages/CartPage'
 import { AdminPage } from '../../origin/pages/AdminPage'
 import { CartItem, Coupon, Discount, Product } from '../../types'
-import { useAccordion, useProductManager } from '../../origin/hooks'
+import { useAccordion, useProduct } from '../../origin/hooks'
 import * as cartUtils from '../../origin/hooks/utils'
 import { ProductProvider } from '@/origin/context'
 import { CouponProvider } from '@/origin/context/providers/CouponContext'
@@ -407,14 +407,12 @@ describe('advanced > ', () => {
         test('토글 기능 테스트', () => {
           const { result } = renderHook(() => useAccordion())
 
-          // 아이템 추가
           act(() => {
             result.current.toggleProducts('item1')
           })
           expect(result.current.openItems.has('item1')).toBe(true)
           expect(result.current.openItems.size).toBe(1)
 
-          // 같은 아이템 제거
           act(() => {
             result.current.toggleProducts('item1')
           })
@@ -425,7 +423,6 @@ describe('advanced > ', () => {
         test('여러 아이템 상태 관리', () => {
           const { result } = renderHook(() => useAccordion())
 
-          // 여러 아이템 추가
           act(() => {
             result.current.toggleProducts('item1')
             result.current.toggleProducts('item2')
@@ -434,7 +431,6 @@ describe('advanced > ', () => {
           expect(result.current.openItems.has('item1')).toBe(true)
           expect(result.current.openItems.has('item2')).toBe(true)
 
-          // 하나의 아이템 제거
           act(() => {
             result.current.toggleProducts('item1')
           })
@@ -455,83 +451,97 @@ describe('advanced > ', () => {
         })
       })
 
-      describe('useProductManager', () => {
-        const mockProduct: Product = {
-          id: '1',
-          name: 'Test Product',
-          price: 1000,
-          stock: 10,
-          discounts: [],
-        }
+      describe('useProduct', () => {
+        const initialProducts: Product[] = [
+          { id: '1', name: 'Product A', price: 1000, stock: 10, discounts: [] },
+          { id: '2', name: 'Product B', price: 2000, stock: 5, discounts: [] },
+        ]
 
-        const mockProps = {
-          products: [mockProduct],
-          updateProduct: vi.fn(),
-          addProduct: vi.fn(),
-        }
-
-        beforeEach(() => {
-          mockProps.updateProduct.mockClear()
-          mockProps.addProduct.mockClear()
+        test('초기 상태는 전달된 products로 설정돼야 한다', () => {
+          const { result } = renderHook(() => useProduct(initialProducts))
+          expect(result.current.products).toEqual(initialProducts)
         })
 
-        test('초기 상태가 올바르게 설정되어야 한다', () => {
-          const { result } = renderHook(() => useProductManager(mockProps))
+        test('제품 수정 기능 테스트', () => {
+          const { result } = renderHook(() => useProduct(initialProducts))
 
-          expect(result.current.editingProduct).toBeNull()
-          expect(result.current.isNewProductForm).toBeFalsy()
-        })
+          const updatedProduct = { id: '1', name: 'Updated Product A', price: 1500, stock: 8, discounts: [] }
 
-        describe('제품 수정', () => {
-          test('제품 수정 모드 진입/완료가 정상 동작해야 한다', () => {
-            const { result } = renderHook(() => useProductManager(mockProps))
-
-            act(() => {
-              result.current.handleEditProduct(mockProduct)
-            })
-            expect(result.current.editingProduct).toEqual(mockProduct)
-
-            act(() => {
-              result.current.handleEditComplete()
-            })
-            expect(result.current.editingProduct).toBeNull()
-            expect(mockProps.updateProduct).toHaveBeenCalledWith(mockProduct)
+          act(() => {
+            result.current.updateProduct(updatedProduct)
           })
+
+          expect(result.current.products[0]).toEqual(updatedProduct)
         })
 
-        describe('새 제품 추가', () => {
-          test('새 제품 추가가 정상 동작해야 한다', () => {
-            const { result } = renderHook(() => useProductManager(mockProps))
-            const newProduct = {
-              name: 'New Product',
-              price: 2000,
-              stock: 5,
-              discounts: [],
-            }
+        test('새로운 제품 추가 기능 테스트', () => {
+          const { result } = renderHook(() => useProduct(initialProducts))
 
-            act(() => {
-              // 새 제품 폼 열기
-              result.current.toggleNewProductForm()
-            })
+          const newProduct: Product = { id: '3', name: 'Product C', price: 3000, stock: 20, discounts: [] }
 
-            act(() => {
-              // 새 제품 정보 설정
-              result.current.setNewProduct(newProduct)
-            })
+          act(() => {
+            result.current.addProduct(newProduct)
+          })
 
-            act(() => {
-              // 새 제품 추가
-              result.current.handleAddNewProduct()
-            })
+          expect(result.current.products.length).toBe(3)
+          expect(result.current.products[2]).toEqual(newProduct)
+        })
 
-            // ID를 제외한 나머지 필드 검증
-            expect(mockProps.addProduct).toHaveBeenCalledWith(
-              expect.objectContaining({
-                ...newProduct,
-                id: expect.any(String),
-              }),
-            )
-            expect(result.current.isNewProductForm).toBeFalsy()
+        test('제품 편집 시작 기능 테스트', () => {
+          const { result } = renderHook(() => useProduct(initialProducts))
+
+          act(() => {
+            result.current.handleEditProduct(initialProducts[0])
+          })
+
+          expect(result.current.editingProduct).toEqual(initialProducts[0])
+        })
+
+        test('편집 완료 시 제품 업데이트', () => {
+          const { result } = renderHook(() => useProduct(initialProducts))
+
+          const editedProduct = { ...initialProducts[0], name: 'Product A' }
+
+          act(() => {
+            result.current.handleEditProduct(initialProducts[0])
+            result.current.setEditingProduct(editedProduct)
+            result.current.handleEditComplete()
+          })
+
+          expect(result.current.products[0].name).toBe('Product A')
+          expect(result.current.editingProduct).toBe(editedProduct)
+        })
+
+        test('새 제품 폼 열고 닫기 테스트', () => {
+          const { result } = renderHook(() => useProduct(initialProducts))
+
+          act(() => {
+            result.current.toggleNewProductForm()
+          })
+
+          expect(result.current.isNewProductForm).toBe(true)
+
+          act(() => {
+            result.current.toggleNewProductForm()
+          })
+
+          expect(result.current.isNewProductForm).toBe(false)
+        })
+
+        test('새 제품 추가 후 초기화되는지 테스트', () => {
+          const { result } = renderHook(() => useProduct(initialProducts))
+
+          act(() => {
+            result.current.setNewProduct({ name: 'New Product', price: 500, stock: 5, discounts: [] })
+            result.current.handleAddNewProduct()
+          })
+
+          expect(result.current.products.length).toBe(3)
+          expect(result.current.newProduct).toEqual({
+            name: '',
+            price: 0,
+            stock: 0,
+            discounts: [],
           })
         })
       })

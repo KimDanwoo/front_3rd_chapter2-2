@@ -1,18 +1,16 @@
 import { ChangeEvent, useCallback, useState } from 'react'
 import { Product, Discount } from '../../types'
-import { containsEmpty } from './utils'
 
 interface UseProductManagerProps {
   products: Product[]
-  onProductUpdate: (updatedProduct: Product) => void
-  onProductAdd: (newProduct: Product) => void
+  updateProduct: (updatedProduct: Product) => void
+  addProduct: (newProduct: Product) => void
 }
 
-export const useProductManager = ({ products, onProductUpdate, onProductAdd }: UseProductManagerProps) => {
+export const useProductManager = ({ products, updateProduct, addProduct }: UseProductManagerProps) => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [newDiscount, setNewDiscount] = useState<Discount>({ quantity: 0, rate: 0 })
   const [isNewProductForm, setIsNewProductForm] = useState(false)
-
   const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({
     name: '',
     price: 0,
@@ -37,7 +35,7 @@ export const useProductManager = ({ products, onProductUpdate, onProductAdd }: U
 
   const handleEditComplete = useCallback(() => {
     if (editingProduct) {
-      onProductUpdate(editingProduct)
+      updateProduct(editingProduct)
       setEditingProduct(null)
     }
   }, [editingProduct])
@@ -51,7 +49,7 @@ export const useProductManager = ({ products, onProductUpdate, onProductAdd }: U
           ...updatedProduct,
           discounts: [...updatedProduct.discounts, newDiscount],
         }
-        onProductUpdate(newProduct)
+        updateProduct(newProduct)
         setEditingProduct(newProduct)
         setNewDiscount({ quantity: 0, rate: 0 })
       }
@@ -67,7 +65,7 @@ export const useProductManager = ({ products, onProductUpdate, onProductAdd }: U
           ...updatedProduct,
           discounts: updatedProduct.discounts.filter((_, i) => i !== index),
         }
-        onProductUpdate(newProduct)
+        updateProduct(newProduct)
         setEditingProduct(newProduct)
       }
     },
@@ -77,7 +75,7 @@ export const useProductManager = ({ products, onProductUpdate, onProductAdd }: U
   const handleAddNewProduct = useCallback(() => {
     const productWithId = { ...newProduct, id: Date.now().toString() }
 
-    onProductAdd(productWithId)
+    addProduct(productWithId)
     setNewProduct({
       name: '',
       price: 0,

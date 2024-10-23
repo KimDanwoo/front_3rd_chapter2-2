@@ -1,4 +1,3 @@
-import { Coupon, Product } from '../../types.ts'
 import {
   Button,
   Card,
@@ -12,19 +11,13 @@ import {
   ProductDetail,
   Box,
 } from '@components/index.ts'
-import { useAccordion, useCouponManager, useProductManager } from '../hooks'
+import { useAccordion, useProductManager } from '../hooks'
+import { useProductContext } from '../context/index.ts'
 
-interface Props {
-  products: Product[]
-  coupons: Coupon[]
-  onProductUpdate: (updatedProduct: Product) => void
-  onProductAdd: (newProduct: Product) => void
-  onCouponAdd: (newCoupon: Coupon) => void
-}
-
-export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, onCouponAdd }: Props) => {
+export const AdminPage = () => {
+  const { products, updateProduct, addProduct } = useProductContext()
   const { openItems, toggleProducts } = useAccordion()
-  const { newCoupon, handleChangeCoupon, handleAddCoupon } = useCouponManager({ onCouponAdd })
+
   const {
     editingProduct,
     newProduct,
@@ -39,7 +32,7 @@ export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, on
     handleAddNewProduct,
     handleUpdateProduct,
     handleRemoveDiscount,
-  } = useProductManager({ products, onProductUpdate, onProductAdd })
+  } = useProductManager({ products, updateProduct, addProduct })
 
   return (
     <PageLayout title="관리자 페이지">
@@ -86,8 +79,8 @@ export const AdminPage = ({ products, coupons, onProductUpdate, onProductAdd, on
 
       <Section title="쿠폰 관리">
         <Card>
-          <CouponForm newCoupon={newCoupon} onChangeCoupon={handleChangeCoupon} onClickAddCoupon={handleAddCoupon} />
-          <CouponList coupons={coupons} />
+          <CouponForm />
+          <CouponList />
         </Card>
       </Section>
     </PageLayout>

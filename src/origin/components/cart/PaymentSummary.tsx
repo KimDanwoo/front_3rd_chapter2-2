@@ -1,13 +1,11 @@
 import { FC } from 'react'
 import { formatKrPrice } from '@hooks/utils'
+import { useCartContext } from '@/origin/context/providers/CartContext'
 
-type PaymentSummaryProps = {
-  totalBeforeDiscount: number
-  totalAfterDiscount: number
-  totalDiscount: number
-}
+export const PaymentSummary: FC = () => {
+  const { calculateTotal } = useCartContext()
+  const { totalBeforeDiscount, totalAfterDiscount, totalDiscount } = calculateTotal()
 
-export const PaymentSummary: FC<PaymentSummaryProps> = ({ totalBeforeDiscount, totalAfterDiscount, totalDiscount }) => {
   return (
     <div className="space-y-1">
       <p>상품 금액: {totalBeforeDiscount.toLocaleString()}원</p>

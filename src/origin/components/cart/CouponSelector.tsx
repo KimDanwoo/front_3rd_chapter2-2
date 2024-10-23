@@ -1,17 +1,16 @@
 import { FC } from 'react'
-import { Coupon } from '@/types'
 import { formatKrPrice, discountFormat } from '@hooks/utils'
+import { useCouponContext } from '@/origin/context/providers/CouponContext'
+import { useCartContext } from '@/origin/context/providers/CartContext'
 
-type CouponSelectorProps = {
-  coupons: Coupon[]
-  selectedCoupon: Coupon | null
-  onChangeApplyCoupon: (coupon: any) => void
-}
-export const CouponSelector: FC<CouponSelectorProps> = ({ onChangeApplyCoupon, selectedCoupon, coupons }) => {
+export const CouponSelector: FC = () => {
+  const { coupons } = useCouponContext()
+  const { selectedCoupon, applyCoupon } = useCartContext()
+
   return (
     <>
       <select
-        onChange={(e) => onChangeApplyCoupon(coupons[parseInt(e.target.value)])}
+        onChange={(e) => applyCoupon(coupons[parseInt(e.target.value)])}
         className="w-full p-2 border rounded mb-2"
       >
         <option value="">쿠폰 선택</option>

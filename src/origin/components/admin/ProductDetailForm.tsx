@@ -60,7 +60,6 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
           />
         </div>
 
-        {/* 할인 정보 수정 부분 */}
         <div>
           <h4 className="text-lg font-semibold mb-2">할인 정보</h4>
 

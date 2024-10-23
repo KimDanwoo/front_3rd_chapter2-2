@@ -1,12 +1,10 @@
 import { FC } from 'react'
 import { Box } from '../layouts'
-import { Coupon } from '@/types'
+import { useCouponContext } from '@/origin/context/providers/CouponContext'
 
-type CouponListProps = {
-  coupons: Coupon[]
-}
+export const CouponList: FC = () => {
+  const { coupons } = useCouponContext()
 
-export const CouponList: FC<CouponListProps> = ({ coupons }) => {
   return (
     <Box>
       <h3 className="text-lg font-semibold mb-2">현재 쿠폰 목록</h3>

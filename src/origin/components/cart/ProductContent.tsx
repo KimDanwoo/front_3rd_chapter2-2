@@ -1,15 +1,15 @@
 import { FC } from 'react'
 import { getMaxDiscount } from '@hooks/utils'
 import { Product } from '@/types'
+import { useCartContext } from '@/origin/context/providers/CartContext'
 
 type ProductContentProps = {
   product: Product
-  getRemainingStock: (id: string, stock: number) => number
-  onClickAddToCart: (product: Product) => void
 }
 
-export const ProductContent: FC<ProductContentProps> = ({ product, getRemainingStock, onClickAddToCart }) => {
+export const ProductContent: FC<ProductContentProps> = ({ product }) => {
   const { id, stock, name, price, discounts } = product
+  const { getRemainingStock, addToCart } = useCartContext()
   const remainingStock = getRemainingStock(id, stock)
 
   return (
@@ -42,7 +42,7 @@ export const ProductContent: FC<ProductContentProps> = ({ product, getRemainingS
       )}
 
       <button
-        onClick={() => onClickAddToCart(product)}
+        onClick={() => addToCart(product)}
         className={`w-full px-3 py-1 rounded ${
           remainingStock ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
         }`}

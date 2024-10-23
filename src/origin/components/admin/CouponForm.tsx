@@ -1,27 +1,23 @@
-import { Coupon } from '@/types'
 import { Box } from '../layouts'
 import { FC } from 'react'
 import { Button, InputField } from '../common'
+import { containsEmpty } from '@/origin/hooks/utils'
+import { useCouponContext } from '@/origin/context/providers/CouponContext'
 
-type CouponFormProps = {
-  newCoupon: Coupon
-  onChangeCoupon: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
-  onClickAddCoupon: () => void
-}
-
-export const CouponForm: FC<CouponFormProps> = ({ newCoupon, onChangeCoupon, onClickAddCoupon }) => {
-  const isDisabledSubmit = !newCoupon.name || !newCoupon.code || !newCoupon.discountValue
+export const CouponForm: FC = () => {
+  const { newCoupon, handleChangeCoupon, handleAddCoupon } = useCouponContext()
+  const { name, code, discountValue, discountType } = newCoupon
 
   return (
     <Box>
-      <InputField type="text" placeholder="쿠폰 이름" name="name" value={newCoupon.name} onChange={onChangeCoupon} />
-      <InputField type="text" placeholder="쿠폰 코드" name="code" value={newCoupon.code} onChange={onChangeCoupon} />
+      <InputField type="text" placeholder="쿠폰 이름" name="name" value={name} onChange={handleChangeCoupon} />
+      <InputField type="text" placeholder="쿠폰 코드" name="code" value={code} onChange={handleChangeCoupon} />
 
       <div className="flex gap-2">
         <select
-          value={newCoupon.discountType}
+          value={discountType}
           name="discountType"
-          onChange={onChangeCoupon}
+          onChange={handleChangeCoupon}
           className="w-full p-2 border rounded"
         >
           <option value="amount">금액(원)</option>
@@ -32,8 +28,8 @@ export const CouponForm: FC<CouponFormProps> = ({ newCoupon, onChangeCoupon, onC
           type="number"
           placeholder="할인 값"
           name="discountValue"
-          value={newCoupon.discountValue}
-          onChange={onChangeCoupon}
+          value={discountValue}
+          onChange={handleChangeCoupon}
         />
       </div>
 
@@ -41,8 +37,8 @@ export const CouponForm: FC<CouponFormProps> = ({ newCoupon, onChangeCoupon, onC
         color="success"
         text="쿠폰 추가"
         className="w-full"
-        disabled={isDisabledSubmit}
-        onClick={onClickAddCoupon}
+        disabled={containsEmpty(name, code, discountValue)}
+        onClick={handleAddCoupon}
       />
     </Box>
   )

@@ -25,6 +25,7 @@ export const ProductForm: FC<ProductFormProps> = ({ isVisible, product, onChange
             onChange={(e) => onChangeProduct({ ...product, name: e.target.value })}
           />
         </div>
+
         <div className="mb-2">
           <label htmlFor="productPrice" className="block text-sm font-medium text-gray-700">
             가격
@@ -37,6 +38,7 @@ export const ProductForm: FC<ProductFormProps> = ({ isVisible, product, onChange
             onChange={(e) => onChangeProduct({ ...product, price: parseInt(e.target.value) })}
           />
         </div>
+
         <div className="mb-2">
           <label htmlFor="productStock" className="block text-sm font-medium text-gray-700">
             재고

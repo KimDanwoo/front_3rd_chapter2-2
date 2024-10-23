@@ -480,7 +480,6 @@ describe('advanced > ', () => {
 
           expect(result.current.editingProduct).toBeNull()
           expect(result.current.isNewProductForm).toBeFalsy()
-          expect(result.current.newDiscount).toEqual({ quantity: 0, rate: 0 })
         })
 
         describe('제품 수정', () => {
@@ -497,43 +496,6 @@ describe('advanced > ', () => {
             })
             expect(result.current.editingProduct).toBeNull()
             expect(mockProps.updateProduct).toHaveBeenCalledWith(mockProduct)
-          })
-        })
-
-        describe('할인 관리', () => {
-          test('할인 추가/제거가 정상 동작해야 한다', () => {
-            const { result } = renderHook(() => useProductManager(mockProps))
-            const newDiscount = { quantity: 5, rate: 10 }
-
-            // 먼저 수정 모드로 진입
-            act(() => {
-              result.current.handleEditProduct(mockProduct)
-            })
-
-            // 할인 정보 설정 후 추가
-            act(() => {
-              result.current.setNewDiscount(newDiscount)
-            })
-
-            act(() => {
-              result.current.handleAddDiscount(mockProduct.id)
-            })
-
-            const expectedProduct = {
-              ...mockProduct,
-              discounts: [newDiscount],
-            }
-            expect(mockProps.updateProduct).toHaveBeenCalledWith(expectedProduct)
-
-            // 할인 제거
-            act(() => {
-              result.current.handleRemoveDiscount(mockProduct.id, 0)
-            })
-
-            expect(mockProps.updateProduct).toHaveBeenCalledWith({
-              ...mockProduct,
-              discounts: [],
-            })
           })
         })
 

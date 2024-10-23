@@ -19,11 +19,6 @@ export const useCoupon = (initialCoupons: Coupon[]) => {
     setNewCoupon((prev) => ({ ...prev, [name]: value }))
   }, [])
 
-  /**
-   * @description 새로운 쿠폰을 추가하는 함수
-   * @param {function} callback - 쿠폰 추가 후 실행할 콜백 함수
-   * @returns {void}
-   */
   const handleAddCoupon = useCallback(() => {
     if (!newCoupon.name || !newCoupon.code || !newCoupon.discountValue) return
 

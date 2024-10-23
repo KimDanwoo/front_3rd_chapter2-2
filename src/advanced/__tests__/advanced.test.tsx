@@ -1,11 +1,13 @@
-import { useState } from 'react'
 import { describe, expect, test, vi } from 'vitest'
 import { act, fireEvent, render, renderHook, screen, within } from '@testing-library/react'
 import { CartPage } from '../../origin/pages/CartPage'
 import { AdminPage } from '../../origin/pages/AdminPage'
 import { CartItem, Coupon, Discount, Product } from '../../types'
-import { useAccordion, useCouponManager, useProductManager } from '../../origin/hooks'
+import { useAccordion, useProductManager } from '../../origin/hooks'
 import * as cartUtils from '../../origin/hooks/utils'
+import { ProductProvider } from '@/origin/context'
+import { CouponProvider } from '@/origin/context/providers/CouponContext'
+import { CartProvider } from '@/origin/context/providers/CartContext'
 
 const mockProducts: Product[] = [
   {
@@ -46,36 +48,27 @@ const mockCoupons: Coupon[] = [
 ]
 
 const TestAdminPage = () => {
-  const [products, setProducts] = useState<Product[]>(mockProducts)
-  const [coupons, setCoupons] = useState<Coupon[]>(mockCoupons)
-
-  const handleProductUpdate = (updatedProduct: Product) => {
-    setProducts((prevProducts) => prevProducts.map((p) => (p.id === updatedProduct.id ? updatedProduct : p)))
-  }
-
-  const handleProductAdd = (newProduct: Product) => {
-    setProducts((prevProducts) => [...prevProducts, newProduct])
-  }
-
-  const handleCouponAdd = (newCoupon: Coupon) => {
-    setCoupons((prevCoupons) => [...prevCoupons, newCoupon])
-  }
-
   return (
-    <AdminPage
-      products={products}
-      coupons={coupons}
-      onProductUpdate={handleProductUpdate}
-      onProductAdd={handleProductAdd}
-      onCouponAdd={handleCouponAdd}
-    />
+    <ProductProvider initialProducts={mockProducts}>
+      <CouponProvider initialCoupons={mockCoupons}>
+        <AdminPage />
+      </CouponProvider>
+    </ProductProvider>
   )
 }
 
 describe('advanced > ', () => {
   describe('시나리오 테스트 > ', () => {
     test('장바구니 페이지 테스트 > ', async () => {
-      render(<CartPage products={mockProducts} coupons={mockCoupons} />)
+      render(
+        <ProductProvider initialProducts={mockProducts}>
+          <CouponProvider initialCoupons={mockCoupons}>
+            <CartProvider>
+              <CartPage />
+            </CartProvider>
+          </CouponProvider>
+        </ProductProvider>,
+      )
       const product1 = screen.getByTestId('product-p1')
       const product2 = screen.getByTestId('product-p2')
       const product3 = screen.getByTestId('product-p3')
@@ -462,97 +455,6 @@ describe('advanced > ', () => {
         })
       })
 
-      describe('useCouponManager', () => {
-        const mockOnCouponAdd = vi.fn()
-        const defaultProps = {
-          onCouponAdd: mockOnCouponAdd,
-        }
-
-        const initialCouponState: Coupon = {
-          name: '',
-          code: '',
-          discountType: 'percentage',
-          discountValue: 0,
-        }
-
-        beforeEach(() => {
-          mockOnCouponAdd.mockClear()
-        })
-
-        test('초기 상태가 올바르게 설정되어야 한다', () => {
-          const { result } = renderHook(() => useCouponManager(defaultProps))
-          expect(result.current.newCoupon).toEqual(initialCouponState)
-        })
-
-        describe('쿠폰 정보 변경', () => {
-          test('텍스트와 숫자 입력값을 처리해야 한다', () => {
-            const { result } = renderHook(() => useCouponManager(defaultProps))
-
-            act(() => {
-              // 쿠폰명 변경
-              result.current.handleChangeCoupon({
-                target: { name: 'name', value: 'Summer Sale' },
-              } as React.ChangeEvent<HTMLInputElement>)
-
-              // 할인값 변경
-              result.current.handleChangeCoupon({
-                target: { name: 'discountValue', value: '10' },
-              } as React.ChangeEvent<HTMLInputElement>)
-            })
-
-            expect(result.current.newCoupon.name).toBe('Summer Sale')
-            expect(result.current.newCoupon.discountValue).toBe('10')
-          })
-
-          test('할인 유형 변경을 처리해야 한다', () => {
-            const { result } = renderHook(() => useCouponManager(defaultProps))
-
-            act(() => {
-              result.current.handleChangeCoupon({
-                target: { name: 'discountType', value: 'amount' },
-              } as React.ChangeEvent<HTMLSelectElement>)
-            })
-
-            expect(result.current.newCoupon.discountType).toBe('amount')
-          })
-        })
-
-        describe('쿠폰 추가', () => {
-          test('쿠폰 추가 시 콜백 호출 및 폼 초기화가 되어야 한다', () => {
-            const { result } = renderHook(() => useCouponManager(defaultProps))
-
-            // 쿠폰 데이터 설정
-            act(() => {
-              result.current.handleChangeCoupon({
-                target: { name: 'name', value: 'Summer Sale' },
-              } as React.ChangeEvent<HTMLInputElement>)
-              result.current.handleChangeCoupon({
-                target: { name: 'code', value: 'SUMMER2024' },
-              } as React.ChangeEvent<HTMLInputElement>)
-              result.current.handleChangeCoupon({
-                target: { name: 'discountValue', value: '5000' },
-              } as React.ChangeEvent<HTMLInputElement>)
-            })
-
-            // 쿠폰 추가
-            act(() => {
-              result.current.handleAddCoupon()
-            })
-
-            // 콜백 호출 확인
-            expect(mockOnCouponAdd).toHaveBeenCalledWith({
-              ...initialCouponState,
-              name: 'Summer Sale',
-              code: 'SUMMER2024',
-              discountValue: '5000',
-            })
-
-            // 폼 초기화 확인
-            expect(result.current.newCoupon).toEqual(initialCouponState)
-          })
-        })
-      })
-
       describe('useProductManager', () => {
         const mockProduct: Product = {
           id: '1',
@@ -564,13 +466,13 @@ describe('advanced > ', () => {
 
         const mockProps = {
           products: [mockProduct],
-          onProductUpdate: vi.fn(),
-          onProductAdd: vi.fn(),
+          updateProduct: vi.fn(),
+          addProduct: vi.fn(),
         }
 
         beforeEach(() => {
-          mockProps.onProductUpdate.mockClear()
-          mockProps.onProductAdd.mockClear()
+          mockProps.updateProduct.mockClear()
+          mockProps.addProduct.mockClear()
         })
 
         test('초기 상태가 올바르게 설정되어야 한다', () => {
@@ -594,7 +496,7 @@ describe('advanced > ', () => {
               result.current.handleEditComplete()
             })
             expect(result.current.editingProduct).toBeNull()
-            expect(mockProps.onProductUpdate).toHaveBeenCalledWith(mockProduct)
+            expect(mockProps.updateProduct).toHaveBeenCalledWith(mockProduct)
           })
         })
 
@@ -621,14 +523,14 @@ describe('advanced > ', () => {
               ...mockProduct,
               discounts: [newDiscount],
             }
-            expect(mockProps.onProductUpdate).toHaveBeenCalledWith(expectedProduct)
+            expect(mockProps.updateProduct).toHaveBeenCalledWith(expectedProduct)
 
             // 할인 제거
             act(() => {
               result.current.handleRemoveDiscount(mockProduct.id, 0)
             })
 
-            expect(mockProps.onProductUpdate).toHaveBeenCalledWith({
+            expect(mockProps.updateProduct).toHaveBeenCalledWith({
               ...mockProduct,
               discounts: [],
             })
@@ -661,7 +563,7 @@ describe('advanced > ', () => {
             })
 
             // ID를 제외한 나머지 필드 검증
-            expect(mockProps.onProductAdd).toHaveBeenCalledWith(
+            expect(mockProps.addProduct).toHaveBeenCalledWith(
               expect.objectContaining({
                 ...newProduct,
                 id: expect.any(String),

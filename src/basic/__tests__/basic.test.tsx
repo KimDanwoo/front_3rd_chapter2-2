@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { describe, expect, test } from 'vitest'
 import { act, fireEvent, render, renderHook, screen, within } from '@testing-library/react'
 import { CartPage } from '../../origin/pages/CartPage'
@@ -6,6 +5,9 @@ import { AdminPage } from '../../origin/pages/AdminPage'
 import { CartItem, Coupon, Product } from '../../types'
 import { useCart, useCoupon, useProduct } from '../../origin/hooks'
 import * as cartUtils from '../../origin/hooks/utils'
+import { ProductProvider } from '@/origin/context'
+import { CouponProvider } from '@/origin/context/providers/CouponContext'
+import { CartProvider } from '@/origin/context/providers/CartContext'
 
 const mockProducts: Product[] = [
   {
@@ -46,36 +48,27 @@ const mockCoupons: Coupon[] = [
 ]
 
 const TestAdminPage = () => {
-  const [products, setProducts] = useState<Product[]>(mockProducts)
-  const [coupons, setCoupons] = useState<Coupon[]>(mockCoupons)
-
-  const handleProductUpdate = (updatedProduct: Product) => {
-    setProducts((prevProducts) => prevProducts.map((p) => (p.id === updatedProduct.id ? updatedProduct : p)))
-  }
-
-  const handleProductAdd = (newProduct: Product) => {
-    setProducts((prevProducts) => [...prevProducts, newProduct])
-  }
-
-  const handleCouponAdd = (newCoupon: Coupon) => {
-    setCoupons((prevCoupons) => [...prevCoupons, newCoupon])
-  }
-
   return (
-    <AdminPage
-      products={products}
-      coupons={coupons}
-      onProductUpdate={handleProductUpdate}
-      onProductAdd={handleProductAdd}
-      onCouponAdd={handleCouponAdd}
-    />
+    <ProductProvider initialProducts={mockProducts}>
+      <CouponProvider initialCoupons={mockCoupons}>
+        <AdminPage />
+      </CouponProvider>
+    </ProductProvider>
   )
 }
 
 describe('basic > ', () => {
   describe('시나리오 테스트 > ', () => {
     test('장바구니 페이지 테스트 > ', async () => {
-      render(<CartPage products={mockProducts} coupons={mockCoupons} />)
+      render(
+        <ProductProvider initialProducts={mockProducts}>
+          <CouponProvider initialCoupons={mockCoupons}>
+            <CartProvider>
+              <CartPage />
+            </CartProvider>
+          </CouponProvider>
+        </ProductProvider>,
+      )
       const product1 = screen.getByTestId('product-p1')
       const product2 = screen.getByTestId('product-p2')
       const product3 = screen.getByTestId('product-p3')
@@ -270,7 +263,7 @@ describe('basic > ', () => {
 
     test('쿠폰을 추가할 수 있다', () => {
       const { result } = renderHook(() => useCoupon(mockCoupons))
-      const newCoupon: Coupon = { name: 'New Coupon', code: 'NEWCODE', discountType: 'amount', discountValue: 5000 }
+      const newCoupon: Coupon = { name: 'New Coupon', code: 'NEW_CODE', discountType: 'amount', discountValue: 5000 }
 
       act(() => {
         result.current.addCoupon(newCoupon)

@@ -14,7 +14,6 @@ interface ProductProviderProps {
   children: ReactNode
   initialProducts?: Product[]
 }
-
 const ProductContext = createContext<ProductContextType | null>(null)
 
 export const ProductProvider = ({ children, initialProducts = [] }: ProductProviderProps) => {

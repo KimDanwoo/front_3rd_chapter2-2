@@ -11,7 +11,7 @@ import {
   ProductDetail,
   Box,
 } from '@components/index.ts'
-import { useAccordion, useProductManager } from '../hooks'
+import { useAccordion, useDiscount, useProductManager } from '../hooks'
 import { useProductContext } from '../context/index.ts'
 
 export const AdminPage = () => {
@@ -21,18 +21,22 @@ export const AdminPage = () => {
   const {
     editingProduct,
     newProduct,
-    newDiscount,
     isNewProductForm,
+    setEditingProduct,
     setNewProduct,
-    setNewDiscount,
     toggleNewProductForm,
     handleEditProduct,
     handleEditComplete,
-    handleAddDiscount,
     handleAddNewProduct,
     handleUpdateProduct,
-    handleRemoveDiscount,
   } = useProductManager({ products, updateProduct, addProduct })
+
+  const { newDiscount, setNewDiscount, handleAddDiscount, handleRemoveDiscount } = useDiscount({
+    products,
+    updateProduct,
+    editingProduct,
+    setEditingProduct,
+  })
 
   return (
     <PageLayout title="관리자 페이지">

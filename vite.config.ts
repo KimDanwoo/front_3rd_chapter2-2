@@ -11,6 +11,7 @@ export default mergeConfig(
         '@components': '/src/origin/components',
         '@hooks': '/src/origin/hooks',
         '@pages': '/src/origin/pages',
+        '@context': '/src/origin/context',
       },
     },
   }),

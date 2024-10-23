@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { getMaxApplicableDiscount } from '@hooks/utils'
+import { formatKrPrice, getMaxApplicableDiscount } from '@hooks/utils'
 import { CartItem } from '@/types'
 import { Button } from '@components/common'
 import { useCartContext } from '@/origin/context/providers/CartContext'
@@ -11,6 +11,7 @@ type CardItemProps = {
 export const CartContent: FC<CardItemProps> = ({ item }) => {
   const { removeFromCart, updateQuantity } = useCartContext()
   const appliedDiscount = getMaxApplicableDiscount(item)
+
   return (
     <div key={item.product.id} className="flex justify-between items-center bg-white p-3 rounded shadow">
       <div>
@@ -18,8 +19,8 @@ export const CartContent: FC<CardItemProps> = ({ item }) => {
         <br />
 
         <span className="text-sm text-gray-600">
-          {item.product.price}원 x {item.quantity}
-          {appliedDiscount && (
+          {formatKrPrice(item.product.price)}원 x {item.quantity}
+          {appliedDiscount > 0 && (
             <span className="text-green-600 ml-1">({(appliedDiscount * 100).toFixed(0)}% 할인 적용)</span>
           )}
         </span>

@@ -1,12 +1,13 @@
 import { FC } from 'react'
 import { Button } from '../common'
 import { Product } from '@/types'
+import { useProductContext } from '@/origin/context'
 
 type ProductDetailProps = {
   product: Product
-  onClickEditProduct: (product: Product) => void
 }
-export const ProductDetail: FC<ProductDetailProps> = ({ product, onClickEditProduct }) => {
+export const ProductDetail: FC<ProductDetailProps> = ({ product }) => {
+  const { handleEditProduct } = useProductContext()
   return (
     <div>
       {product.discounts.map((discount, index) => (
@@ -17,7 +18,7 @@ export const ProductDetail: FC<ProductDetailProps> = ({ product, onClickEditProd
         </div>
       ))}
 
-      <Button data-testid="modify-button" size="sm" text="수정" onClick={() => onClickEditProduct(product)} />
+      <Button data-testid="modify-button" size="sm" text="수정" onClick={() => handleEditProduct(product)} />
     </div>
   )
 }

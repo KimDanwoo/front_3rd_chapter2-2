@@ -1,29 +1,19 @@
-import { Discount, Product } from '@/types'
+import { Product } from '@/types'
 import { Button, InputField } from '../common'
 import { FC } from 'react'
 import { containsEmpty } from '@/origin/hooks/utils'
+import { useProductContext } from '@/origin/context'
 
 type ProductDetailFormProps = {
   product: Product
   productForm: Product
-  discount: Discount
-  onChangeProduct: (e: React.ChangeEvent<HTMLInputElement>) => void
-  onChangeDiscount: (discount: Discount) => void
-  onClickRemoveDiscount: (productId: string, index: number) => void
   onClickAddDiscount: (productId: string) => void
-  onClickEditComplete: () => void
 }
 
-export const ProductDetailForm: FC<ProductDetailFormProps> = ({
-  product,
-  productForm,
-  discount,
-  onChangeProduct,
-  onChangeDiscount,
-  onClickRemoveDiscount,
-  onClickAddDiscount,
-  onClickEditComplete,
-}) => {
+export const ProductDetailForm: FC<ProductDetailFormProps> = ({ product, productForm, onClickAddDiscount }) => {
+  const { newDiscount, setNewDiscount, handleEditComplete, handleUpdateProduct, handleRemoveDiscount } =
+    useProductContext()
+
   return (
     <div className="mt-2">
       <div>
@@ -34,7 +24,7 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
             name="name"
             id={product.id}
             value={productForm.name}
-            onChange={onChangeProduct}
+            onChange={handleUpdateProduct}
           />
         </div>
 
@@ -45,7 +35,7 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
             id={product.id}
             name="price"
             value={productForm.price}
-            onChange={onChangeProduct}
+            onChange={handleUpdateProduct}
           />
         </div>
 
@@ -56,7 +46,7 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
             id={product.id}
             name="stock"
             value={productForm.stock}
-            onChange={onChangeProduct}
+            onChange={handleUpdateProduct}
           />
         </div>
 
@@ -68,7 +58,7 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
               <span>
                 {discount.quantity}개 이상 구매 시 {discount.rate * 100}% 할인
               </span>
-              <Button color="error" size="sm" text="삭제" onClick={() => onClickRemoveDiscount(product.id, index)} />
+              <Button color="error" size="sm" text="삭제" onClick={() => handleRemoveDiscount(product.id, index)} />
             </div>
           ))}
 
@@ -76,15 +66,15 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
             <InputField
               type="number"
               placeholder="수량"
-              value={discount.quantity}
-              onChange={(e) => onChangeDiscount({ ...discount, quantity: parseInt(e.target.value) })}
+              value={newDiscount.quantity}
+              onChange={(e) => setNewDiscount({ ...newDiscount, quantity: parseInt(e.target.value) })}
               className="w-1/3 p-2 border rounded"
             />
             <InputField
               type="number"
               placeholder="할인율 (%)"
-              value={discount.rate * 100}
-              onChange={(e) => onChangeDiscount({ ...discount, rate: parseInt(e.target.value) / 100 })}
+              value={newDiscount.rate * 100}
+              onChange={(e) => setNewDiscount({ ...newDiscount, rate: parseInt(e.target.value) / 100 })}
               className="w-1/3 p-2 border rounded"
             />
 
@@ -92,7 +82,7 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
               size="sm"
               text="할인 추가"
               className="w-1/3"
-              disabled={containsEmpty(discount.quantity, discount.rate)}
+              disabled={containsEmpty(newDiscount.quantity, newDiscount.rate)}
               onClick={() => onClickAddDiscount(product.id)}
             />
           </div>
@@ -104,7 +94,7 @@ export const ProductDetailForm: FC<ProductDetailFormProps> = ({
           text="수정 완료"
           disabled={!productForm.name || !productForm.price || !productForm.stock}
           className="mt-2"
-          onClick={onClickEditComplete}
+          onClick={handleEditComplete}
         />
       </div>
     </div>

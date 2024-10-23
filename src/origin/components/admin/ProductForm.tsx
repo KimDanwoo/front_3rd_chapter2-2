@@ -1,17 +1,13 @@
 import { FC } from 'react'
 import { Card } from '../layouts'
-import { Product } from '@/types'
 import { Button, InputField } from '../common'
+import { useProductContext } from '@/origin/context'
 
-type ProductFormProps = {
-  isVisible: boolean
-  product: Omit<Product, 'id'>
-  onChangeProduct: (product: Omit<Product, 'id'>) => void
-  onClickAddProduct: () => void
-}
-export const ProductForm: FC<ProductFormProps> = ({ isVisible, product, onChangeProduct, onClickAddProduct }) => {
+export const ProductForm: FC = () => {
+  const { newProduct, isNewProductForm, setNewProduct, handleAddNewProduct } = useProductContext()
+
   return (
-    isVisible && (
+    isNewProductForm && (
       <Card title="새 상품 추가">
         <div className="mb-2">
           <label htmlFor="productName" className="block text-sm font-medium text-gray-700">
@@ -21,8 +17,8 @@ export const ProductForm: FC<ProductFormProps> = ({ isVisible, product, onChange
           <InputField
             id="productName"
             type="text"
-            value={product.name}
-            onChange={(e) => onChangeProduct({ ...product, name: e.target.value })}
+            value={newProduct.name}
+            onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
           />
         </div>
 
@@ -34,8 +30,8 @@ export const ProductForm: FC<ProductFormProps> = ({ isVisible, product, onChange
           <InputField
             id="productPrice"
             type="number"
-            value={product.price}
-            onChange={(e) => onChangeProduct({ ...product, price: parseInt(e.target.value) })}
+            value={newProduct.price}
+            onChange={(e) => setNewProduct({ ...newProduct, price: parseInt(e.target.value) })}
           />
         </div>
 
@@ -47,12 +43,12 @@ export const ProductForm: FC<ProductFormProps> = ({ isVisible, product, onChange
           <InputField
             id="productStock"
             type="number"
-            value={product.stock}
-            onChange={(e) => onChangeProduct({ ...product, stock: parseInt(e.target.value) })}
+            value={newProduct.stock}
+            onChange={(e) => setNewProduct({ ...newProduct, stock: parseInt(e.target.value) })}
             className="w-full p-2 border rounded"
           />
         </div>
-        <Button text="추가" className="w-full" onClick={onClickAddProduct} />
+        <Button text="추가" className="w-full" onClick={handleAddNewProduct} />
       </Card>
     )
   )

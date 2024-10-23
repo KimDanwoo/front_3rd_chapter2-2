@@ -1,42 +1,9 @@
-import {
-  Button,
-  Card,
-  PageLayout,
-  Section,
-  CouponForm,
-  CouponList,
-  ProductForm,
-  ProductItem,
-  ProductDetailForm,
-  ProductDetail,
-  Box,
-} from '@components/index.ts'
-import { useAccordion, useDiscount, useProductManager } from '../hooks'
+import { Button, Card, PageLayout, Section, CouponForm, CouponList, ProductForm } from '@components/index.ts'
 import { useProductContext } from '../context/index.ts'
+import ProductList from '../components/admin/ProductList.tsx'
 
 export const AdminPage = () => {
-  const { products, updateProduct, addProduct } = useProductContext()
-  const { openItems, toggleProducts } = useAccordion()
-
-  const {
-    editingProduct,
-    newProduct,
-    isNewProductForm,
-    setEditingProduct,
-    setNewProduct,
-    toggleNewProductForm,
-    handleEditProduct,
-    handleEditComplete,
-    handleAddNewProduct,
-    handleUpdateProduct,
-  } = useProductManager({ products, updateProduct, addProduct })
-
-  const { newDiscount, setNewDiscount, handleAddDiscount, handleRemoveDiscount } = useDiscount({
-    products,
-    updateProduct,
-    editingProduct,
-    setEditingProduct,
-  })
+  const { isNewProductForm, toggleNewProductForm } = useProductContext()
 
   return (
     <PageLayout title="관리자 페이지">
@@ -47,38 +14,8 @@ export const AdminPage = () => {
           className="mb-2"
           onClick={toggleNewProductForm}
         />
-
-        <ProductForm
-          isVisible={isNewProductForm}
-          product={newProduct}
-          onChangeProduct={setNewProduct}
-          onClickAddProduct={handleAddNewProduct}
-        />
-
-        <Box className="mt-2">
-          {products.map((product, index) => (
-            <ProductItem key={index} product={product} index={index} toggleProducts={toggleProducts}>
-              {openItems.has(product.id) && (
-                <div className="mt-2">
-                  {editingProduct?.id === product.id ? (
-                    <ProductDetailForm
-                      product={product}
-                      productForm={editingProduct}
-                      discount={newDiscount}
-                      onChangeProduct={handleUpdateProduct}
-                      onChangeDiscount={setNewDiscount}
-                      onClickRemoveDiscount={handleRemoveDiscount}
-                      onClickEditComplete={handleEditComplete}
-                      onClickAddDiscount={handleAddDiscount}
-                    />
-                  ) : (
-                    <ProductDetail product={product} onClickEditProduct={handleEditProduct} />
-                  )}
-                </div>
-              )}
-            </ProductItem>
-          ))}
-        </Box>
+        <ProductForm />
+        <ProductList />
       </Section>
 
       <Section title="쿠폰 관리">

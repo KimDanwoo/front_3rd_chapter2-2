@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'vitest'
 import { act, fireEvent, render, renderHook, screen, within } from '@testing-library/react'
-import { CartPage } from '../../origin/pages/CartPage'
-import { AdminPage } from '../../origin/pages/AdminPage'
+import { CartPage } from '../../refactoring/pages/CartPage'
+import { AdminPage } from '../../refactoring/pages/AdminPage'
 import { CartItem, Coupon, Product } from '../../types'
-import { useCart, useCoupon, useProduct } from '../../origin/hooks'
-import * as cartUtils from '../../origin/hooks/utils'
-import { ProductProvider } from '@/origin/context'
-import { CouponProvider } from '@/origin/context/providers/CouponContext'
-import { CartProvider } from '@/origin/context/providers/CartContext'
+import { useCart, useCoupon, useProduct } from '../../refactoring/hooks'
+import * as cartUtils from '../../refactoring/hooks/utils'
+import { ProductProvider } from '@/refactoring/context'
+import { CouponProvider } from '@/refactoring/context/providers/CouponContext'
+import { CartProvider } from '@/refactoring/context/providers/CartContext'
 
 const mockProducts: Product[] = [
   {
@@ -266,7 +266,7 @@ describe('basic > ', () => {
       const newCoupon: Coupon = { name: 'New Coupon', code: 'NEW_CODE', discountType: 'amount', discountValue: 5000 }
 
       act(() => {
-        result.current.addCoupon(newCoupon)
+        result.current.handleAddCoupon(newCoupon)
       })
 
       expect(result.current.coupons).toHaveLength(3)

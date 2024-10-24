@@ -11,8 +11,8 @@ export interface UseDiscountProps {
 export interface DiscountHook {
   newDiscount: Discount
   setNewDiscount: (discount: Discount) => void
-  handleAddDiscount: (productId: string) => void
-  handleRemoveDiscount: (productId: string, index: number) => void
+  addToDiscount: (productId: string) => void
+  removeDiscount: (productId: string, index: number) => void
 }
 
 export const useDiscount = ({ products, updateProduct, editingProduct, setEditingProduct }: UseDiscountProps) => {
@@ -35,7 +35,7 @@ export const useDiscount = ({ products, updateProduct, editingProduct, setEditin
     setEditingProduct(newProduct)
   }, [])
 
-  const handleAddDiscount = useCallback(
+  const addToDiscount = useCallback(
     (productId: string) => {
       const updatedProduct = findProduct(products, productId)
 
@@ -48,7 +48,7 @@ export const useDiscount = ({ products, updateProduct, editingProduct, setEditin
     [products, editingProduct, newDiscount, updateProduct, setEditingProduct],
   )
 
-  const handleRemoveDiscount = useCallback(
+  const removeDiscount = useCallback(
     (productId: string, index: number) => {
       const updatedProduct = findProduct(products, productId)
 
@@ -63,7 +63,7 @@ export const useDiscount = ({ products, updateProduct, editingProduct, setEditin
   return {
     newDiscount,
     setNewDiscount,
-    handleAddDiscount,
-    handleRemoveDiscount,
+    addToDiscount,
+    removeDiscount,
   }
 }

@@ -1,13 +1,13 @@
 import { useCallback, useState } from 'react'
 import { CartItem, Coupon, Product } from '@/types'
-import { updateCartItemQuantity, calculateCartTotal } from './utils'
+import { updateItemQuantity, calculateCartTotal } from './utils'
 
 export interface CartHook {
   cart: CartItem[]
   selectedCoupon: Coupon | null
   addToCart: (product: Product) => void
-  removeFromCart: (productId: string) => void
-  updateQuantity: (productId: string, newQuantity: number) => void
+  removeCart: (productId: string) => void
+  updateCartQuantity: (productId: string, newQuantity: number) => void
   applyCoupon: (coupon: Coupon) => void
   calculateTotal: () => { totalBeforeDiscount: number; totalAfterDiscount: number; totalDiscount: number }
   getRemainingStock: (id: string, stock: number) => number
@@ -46,13 +46,13 @@ export const useCart = () => {
     })
   }, [])
 
-  const removeFromCart = useCallback((productId: string) => {
+  const removeCart = useCallback((productId: string) => {
     setCart((prevCart) => prevCart.filter(({ product }) => product.id !== productId))
   }, [])
 
-  const updateQuantity = useCallback((productId: string, newQuantity: number) => {
+  const updateCartQuantity = useCallback((productId: string, newQuantity: number) => {
     setCart((prevCart) => {
-      return updateCartItemQuantity(prevCart, productId, newQuantity)
+      return updateItemQuantity(prevCart, productId, newQuantity)
     })
   }, [])
 
@@ -73,8 +73,8 @@ export const useCart = () => {
     cart,
     selectedCoupon,
     addToCart,
-    removeFromCart,
-    updateQuantity,
+    removeCart,
+    updateCartQuantity,
     applyCoupon,
     calculateTotal,
     getRemainingStock,

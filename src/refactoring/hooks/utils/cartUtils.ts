@@ -1,4 +1,5 @@
 import { CartItem, Coupon, Discount } from '@/types'
+import { roundAmount } from './formatUtils'
 
 /**
  * @description 상품의 최대 할인율을 계산
@@ -91,14 +92,6 @@ export function calculateTotalDiscount(totalBeforeDiscount: number, totalAfterDi
 }
 
 /**
- * @description 소수점 이하를 반올림하여 정수로 변환
- * @param {number} amount 변환할 금액
- */
-export function roundAmount(amount: number): number {
-  return Math.round(amount)
-}
-
-/**
  * @description 장바구니의 총액 계산
  * @param {CartItem[]} cart 장바구니 상품 목록
  * @param {Coupon | null} selectedCoupon 쿠폰 정보
@@ -140,7 +133,7 @@ export function updateQuantity(item: CartItem, productId: string, newQuantity: n
  * @param {number} newQuantity 새로운 수량
  * @returns {CartItem[]} 업데이트된 장바구니 상품 목록
  */
-export function updateCartItemQuantity(cart: CartItem[], productId: string, newQuantity: number): CartItem[] {
+export function updateItemQuantity(cart: CartItem[], productId: string, newQuantity: number): CartItem[] {
   return cart.map((item) => updateQuantity(item, productId, newQuantity)).filter(({ quantity }) => quantity)
 }
 
@@ -163,22 +156,4 @@ export function getMaxDiscount(discounts: Discount[]) {
 export function getRemainingStock(cart: CartItem[], id: string, stock: number) {
   const cartItem = cart.find((item) => item.product.id === id)
   return stock - (cartItem?.quantity || 0)
-}
-
-/**
- * @description 쿠폰 할인 금액 포맷 변환
- * @param {Coupon} coupon 쿠폰 정보
- * @returns {string} 할인 금액 포맷
- */
-export function discountFormat(coupon: Coupon) {
-  return coupon.discountType === 'amount' ? '원' : '%'
-}
-
-/**
- * @description 금액을 숫자로 변환
- * @param {number} amount 금액
- * @returns {string} 변환된 금액
- */
-export function formatKrPrice(amount: number): string {
-  return amount.toLocaleString()
 }

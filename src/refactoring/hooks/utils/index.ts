@@ -1,2 +1,3 @@
 export * from './cartUtils'
-export * from './config'
+export * from './validationUtils'
+export * from './formatUtils'

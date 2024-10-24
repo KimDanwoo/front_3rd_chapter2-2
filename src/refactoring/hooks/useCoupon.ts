@@ -4,8 +4,8 @@ import { Coupon } from '@/types'
 export interface CouponHook {
   coupons: Coupon[]
   newCoupon: Coupon
-  handleChangeCoupon: <T extends React.ChangeEvent<HTMLInputElement | HTMLSelectElement>>(e: T) => void
-  handleAddCoupon: (coupon: Coupon) => void
+  changeCoupon: <T extends React.ChangeEvent<HTMLInputElement | HTMLSelectElement>>(e: T) => void
+  addCoupon: (coupon: Coupon) => void
 }
 
 export const useCoupon = (initialCoupons: Coupon[]) => {
@@ -17,15 +17,15 @@ export const useCoupon = (initialCoupons: Coupon[]) => {
     discountValue: 0,
   })
 
-  const handleChangeCoupon = useCallback(<T extends ChangeEvent<HTMLInputElement | HTMLSelectElement>>(e: T) => {
+  const changeCoupon = useCallback(<T extends ChangeEvent<HTMLInputElement | HTMLSelectElement>>(e: T) => {
     const { name, value } = e.target
     setNewCoupon((prev) => ({ ...prev, [name]: value }))
   }, [])
 
-  const handleAddCoupon = useCallback((coupon: Coupon) => {
+  const addCoupon = useCallback((coupon: Coupon) => {
     setCoupon((prevCoupon) => [...prevCoupon, coupon])
     setNewCoupon({ name: '', code: '', discountType: 'percentage', discountValue: 0 })
   }, [])
 
-  return { coupons, newCoupon, handleChangeCoupon, handleAddCoupon }
+  return { coupons, newCoupon, changeCoupon, addCoupon }
 }

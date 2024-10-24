@@ -82,16 +82,6 @@ export function applyCouponDiscount(amount: number, coupon: Coupon | null): numb
 }
 
 /**
- * @description 총 할인 금액 계산
- * @param {number} totalBeforeDiscount 할인 적용 전 총액
- * @param {number} totalAfterDiscount 할인 적용 후 총액
- * @returns {number} 총 할인 금액
- */
-export function calculateTotalDiscount(totalBeforeDiscount: number, totalAfterDiscount: number): number {
-  return totalBeforeDiscount - totalAfterDiscount
-}
-
-/**
  * @description 장바구니의 총액 계산
  * @param {CartItem[]} cart 장바구니 상품 목록
  * @param {Coupon | null} selectedCoupon 쿠폰 정보
@@ -100,13 +90,11 @@ export function calculateTotalDiscount(totalBeforeDiscount: number, totalAfterDi
 export function calculateCartTotal(cart: CartItem[], selectedCoupon: Coupon | null) {
   const totalBeforeDiscount = calculateTotalBeforeDiscount(cart)
   const totalAfterDiscount = calculateTotalAfterItemDiscounts(cart)
-  const finalAfterDiscount = applyCouponDiscount(roundAmount(totalAfterDiscount), selectedCoupon)
-  const totalDiscount = calculateTotalDiscount(totalBeforeDiscount, finalAfterDiscount)
 
   return {
     totalBeforeDiscount: roundAmount(totalBeforeDiscount),
-    totalAfterDiscount: roundAmount(finalAfterDiscount),
-    totalDiscount: roundAmount(totalDiscount),
+    totalAfterDiscount: applyCouponDiscount(roundAmount(totalAfterDiscount), selectedCoupon),
+    totalDiscount: roundAmount(totalBeforeDiscount - totalAfterDiscount),
   }
 }
 

@@ -1,6 +1,7 @@
 import { Product } from '@/types'
 import { Box } from '../layouts'
 import { FC, ReactNode } from 'react'
+import { formatKrPrice } from '@/refactoring/hooks/utils'
 
 type ProductItemProps = {
   product: Product
@@ -18,7 +19,7 @@ export const ProductItem: FC<ProductItemProps> = ({ product, index, toggleProduc
           onClick={() => toggleProducts(product.id)}
           className="w-full text-left font-semibold"
         >
-          {product.name} - {product.price}원 (재고: {product.stock})
+          {product.name} - {formatKrPrice(product.price)}원 (재고: {product.stock})
         </button>
 
         {children}

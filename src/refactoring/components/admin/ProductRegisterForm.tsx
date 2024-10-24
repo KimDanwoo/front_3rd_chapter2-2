@@ -3,8 +3,8 @@ import { Card } from '../layouts'
 import { Button, InputField } from '../common'
 import { useProductContext } from '@/refactoring/context'
 
-export const ProductForm: FC = () => {
-  const { newProduct, isNewProductForm, handleChangeNewProduct, handleAddNewProduct } = useProductContext()
+export const ProductRegisterForm: FC = () => {
+  const { newProduct, isNewProductForm, updateNewProduct, addNewProduct } = useProductContext()
 
   return (
     isNewProductForm && (
@@ -14,13 +14,7 @@ export const ProductForm: FC = () => {
             상품명
           </label>
 
-          <InputField
-            id="productName"
-            name="name"
-            type="text"
-            value={newProduct.name}
-            onChange={handleChangeNewProduct}
-          />
+          <InputField id="productName" name="name" type="text" value={newProduct.name} onChange={updateNewProduct} />
         </div>
 
         <div className="mb-2">
@@ -33,7 +27,7 @@ export const ProductForm: FC = () => {
             type="number"
             name="price"
             value={newProduct.price}
-            onChange={handleChangeNewProduct}
+            onChange={updateNewProduct}
           />
         </div>
 
@@ -47,11 +41,11 @@ export const ProductForm: FC = () => {
             type="number"
             name="stock"
             value={newProduct.stock}
-            onChange={handleChangeNewProduct}
+            onChange={updateNewProduct}
             className="w-full p-2 border rounded"
           />
         </div>
-        <Button text="추가" className="w-full" onClick={() => handleAddNewProduct(newProduct)} />
+        <Button text="추가" className="w-full" onClick={() => addNewProduct(newProduct)} />
       </Card>
     )
   )

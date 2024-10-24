@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { formatKrPrice, getMaxApplicableDiscount } from '@hooks/utils'
+import { formatKrPrice, getMaxApplicableDiscount } from '@/refactoring/hooks/utils'
 import { CartItem } from '@/types'
 import { Button } from '@/refactoring/components/common'
 import { useCartContext } from '@/refactoring/context/providers/CartContext'
@@ -9,7 +9,7 @@ type CardItemProps = {
 }
 
 export const CartContent: FC<CardItemProps> = ({ item }) => {
-  const { removeFromCart, updateQuantity } = useCartContext()
+  const { removeCart, updateCartQuantity } = useCartContext()
   const appliedDiscount = getMaxApplicableDiscount(item)
 
   return (
@@ -32,16 +32,16 @@ export const CartContent: FC<CardItemProps> = ({ item }) => {
           color="info"
           text="-"
           className="mr-2"
-          onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+          onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)}
         />
         <Button
           size="sm"
           color="info"
           text="+"
           className="mr-2"
-          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+          onClick={() => updateCartQuantity(item.product.id, item.quantity + 1)}
         />
-        <Button size="sm" color="error" text="삭제" onClick={() => removeFromCart(item.product.id)} />
+        <Button size="sm" color="error" text="삭제" onClick={() => removeCart(item.product.id)} />
       </div>
     </div>
   )

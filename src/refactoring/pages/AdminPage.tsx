@@ -1,4 +1,12 @@
-import { Button, Card, PageLayout, Section, CouponForm, CouponList, ProductForm } from '@components/index.ts'
+import {
+  Button,
+  Card,
+  PageLayout,
+  Section,
+  CouponForm,
+  CouponList,
+  ProductRegisterForm,
+} from '@/refactoring/components/index.ts'
 import { useProductContext } from '../context/index.ts'
 import ProductList from '@/refactoring/components/admin/ProductList'
 
@@ -14,13 +22,16 @@ export const AdminPage = () => {
           className="mb-2"
           onClick={toggleNewProductForm}
         />
-        <ProductForm />
+
+        <ProductRegisterForm />
+
         <ProductList />
       </Section>
 
       <Section title="쿠폰 관리">
         <Card>
           <CouponForm />
+
           <CouponList />
         </Card>
       </Section>

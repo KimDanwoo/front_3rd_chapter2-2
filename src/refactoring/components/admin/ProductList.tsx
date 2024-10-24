@@ -6,7 +6,7 @@ import { ProductDetailForm } from './ProductDetailForm'
 import { ProductDetail } from './ProductDetail'
 
 export default function ProductList() {
-  const { products, editingProduct, handleAddDiscount } = useProductContext()
+  const { products, editingProduct, addToDiscount } = useProductContext()
   const { openItems, toggleProducts } = useAccordion()
   return (
     <Box className="mt-2">
@@ -15,11 +15,7 @@ export default function ProductList() {
           {openItems.has(product.id) && (
             <div className="mt-2">
               {editingProduct?.id === product.id ? (
-                <ProductDetailForm
-                  product={product}
-                  productForm={editingProduct}
-                  onClickAddDiscount={handleAddDiscount}
-                />
+                <ProductDetailForm product={product} productForm={editingProduct} onClickAddDiscount={addToDiscount} />
               ) : (
                 <ProductDetail product={product} />
               )}

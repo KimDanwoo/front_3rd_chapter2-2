@@ -5,21 +5,16 @@ import { containsEmpty } from '@/refactoring/hooks/utils'
 import { useCouponContext } from '@/refactoring/context/providers/CouponContext'
 
 export const CouponForm: FC = () => {
-  const { newCoupon, handleChangeCoupon, handleAddCoupon } = useCouponContext()
+  const { newCoupon, changeCoupon, addCoupon } = useCouponContext()
   const { name, code, discountValue, discountType } = newCoupon
 
   return (
     <Box>
-      <InputField type="text" placeholder="쿠폰 이름" name="name" value={name} onChange={handleChangeCoupon} />
-      <InputField type="text" placeholder="쿠폰 코드" name="code" value={code} onChange={handleChangeCoupon} />
+      <InputField type="text" placeholder="쿠폰 이름" name="name" value={name} onChange={changeCoupon} />
+      <InputField type="text" placeholder="쿠폰 코드" name="code" value={code} onChange={changeCoupon} />
 
       <div className="flex gap-2">
-        <select
-          value={discountType}
-          name="discountType"
-          onChange={handleChangeCoupon}
-          className="w-full p-2 border rounded"
-        >
+        <select value={discountType} name="discountType" onChange={changeCoupon} className="w-full p-2 border rounded">
           <option value="amount">금액(원)</option>
           <option value="percentage">할인율(%)</option>
         </select>
@@ -29,7 +24,7 @@ export const CouponForm: FC = () => {
           placeholder="할인 값"
           name="discountValue"
           value={discountValue}
-          onChange={handleChangeCoupon}
+          onChange={changeCoupon}
         />
       </div>
 
@@ -38,7 +33,7 @@ export const CouponForm: FC = () => {
         text="쿠폰 추가"
         className="w-full"
         disabled={containsEmpty(name, code, discountValue)}
-        onClick={() => handleAddCoupon(newCoupon)}
+        onClick={() => addCoupon(newCoupon)}
       />
     </Box>
   )

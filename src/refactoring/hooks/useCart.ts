@@ -1,33 +1,82 @@
-// useCart.ts
-import { useState } from 'react';
-import { CartItem, Coupon, Product } from '../../types';
-import { calculateCartTotal, updateCartItemQuantity } from './utils/cartUtils';
+import { useCallback, useState } from 'react'
+import { CartItem, Coupon, Product } from '@/types'
+import { updateCartItemQuantity, calculateCartTotal } from './utils'
+
+export interface CartHook {
+  cart: CartItem[]
+  selectedCoupon: Coupon | null
+  addToCart: (product: Product) => void
+  removeFromCart: (productId: string) => void
+  updateQuantity: (productId: string, newQuantity: number) => void
+  applyCoupon: (coupon: Coupon) => void
+  calculateTotal: () => { totalBeforeDiscount: number; totalAfterDiscount: number; totalDiscount: number }
+  getRemainingStock: (id: string, stock: number) => number
+}
 
 export const useCart = () => {
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
+  const [cart, setCart] = useState<CartItem[]>([])
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null)
 
-  const addToCart = (product: Product) => {};
+  const findItemInCart = useCallback((cart: CartItem[], productId: string) => {
+    return cart.find(({ product }) => product.id === productId)
+  }, [])
 
-  const removeFromCart = (productId: string) => {};
+  const getRemainingStock = useCallback(
+    (id: string, stock: number) => {
+      const cartItem = findItemInCart(cart, id)
+      return stock - (cartItem?.quantity || 0)
+    },
+    [cart],
+  )
 
-  const updateQuantity = (productId: string, newQuantity: number) => {};
+  const updateCartItem = useCallback((cart: CartItem[], productId: string) => {
+    return cart.map((item) =>
+      item.product.id === productId ? { ...item, quantity: Math.min(item.quantity + 1, item.product.stock) } : item,
+    )
+  }, [])
 
-  const applyCoupon = (coupon: Coupon) => {};
+  const addToCart = useCallback((product: Product) => {
+    const { id, stock } = product
 
-  const calculateTotal = () => ({
-    totalBeforeDiscount: 0,
-    totalAfterDiscount: 0,
-    totalDiscount: 0,
-  })
+    if (!getRemainingStock(id, stock)) return
+
+    setCart((prevCart) => {
+      const existingItem = findItemInCart(prevCart, id)
+      return existingItem ? updateCartItem(prevCart, id) : [...prevCart, { product, quantity: 1 }]
+    })
+  }, [])
+
+  const removeFromCart = useCallback((productId: string) => {
+    setCart((prevCart) => prevCart.filter(({ product }) => product.id !== productId))
+  }, [])
+
+  const updateQuantity = useCallback((productId: string, newQuantity: number) => {
+    setCart((prevCart) => {
+      return updateCartItemQuantity(prevCart, productId, newQuantity)
+    })
+  }, [])
+
+  const calculateTotal = useCallback(() => {
+    const { totalBeforeDiscount, totalAfterDiscount, totalDiscount } = calculateCartTotal(cart, selectedCoupon)
+    return {
+      totalBeforeDiscount: Math.round(totalBeforeDiscount),
+      totalAfterDiscount: Math.round(totalAfterDiscount),
+      totalDiscount: Math.round(totalDiscount),
+    }
+  }, [cart, selectedCoupon])
+
+  const applyCoupon = useCallback((coupon: Coupon) => {
+    setSelectedCoupon(coupon)
+  }, [])
 
   return {
     cart,
+    selectedCoupon,
     addToCart,
     removeFromCart,
     updateQuantity,
     applyCoupon,
     calculateTotal,
-    selectedCoupon,
-  };
-};
+    getRemainingStock,
+  }
+}

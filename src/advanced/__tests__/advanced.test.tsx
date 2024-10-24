@@ -1,13 +1,14 @@
 import { describe, expect, test } from 'vitest'
 import { act, fireEvent, render, renderHook, screen, within } from '@testing-library/react'
-import { CartPage } from '../../origin/pages/CartPage'
-import { AdminPage } from '../../origin/pages/AdminPage'
+import { CartPage } from '../../refactoring/pages/CartPage'
+import { AdminPage } from '../../refactoring/pages/AdminPage'
 import { CartItem, Coupon, Discount, Product } from '../../types'
-import { useAccordion, useProduct } from '../../origin/hooks'
-import * as cartUtils from '../../origin/hooks/utils'
-import { ProductProvider } from '@/origin/context'
-import { CouponProvider } from '@/origin/context/providers/CouponContext'
-import { CartProvider } from '@/origin/context/providers/CartContext'
+import { useAccordion, useProduct } from '../../refactoring/hooks'
+import * as cartUtils from '../../refactoring/hooks/utils'
+import { ProductProvider } from '@/refactoring/context'
+import { CouponProvider } from '@/refactoring/context/providers/CouponContext'
+import { CartProvider } from '@/refactoring/context/providers/CartContext'
+import { ChangeEvent } from 'react'
 
 const mockProducts: Product[] = [
   {
@@ -532,8 +533,10 @@ describe('advanced > ', () => {
           const { result } = renderHook(() => useProduct(initialProducts))
 
           act(() => {
-            result.current.setNewProduct({ name: 'New Product', price: 500, stock: 5, discounts: [] })
-            result.current.handleAddNewProduct()
+            result.current.handleChangeNewProduct({
+              target: { name: 'name', value: 'New Product' },
+            } as ChangeEvent<HTMLInputElement>)
+            result.current.handleAddNewProduct({ name: 'New Product', price: 500, stock: 5, discounts: [] })
           })
 
           expect(result.current.products.length).toBe(3)

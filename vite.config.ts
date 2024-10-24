@@ -8,10 +8,6 @@ export default mergeConfig(
     resolve: {
       alias: {
         '@': '/src',
-        '@components': '/src/origin/components',
-        '@hooks': '/src/origin/hooks',
-        '@pages': '/src/origin/pages',
-        '@context': '/src/origin/context',
       },
     },
   }),

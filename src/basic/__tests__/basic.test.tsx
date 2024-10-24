@@ -72,9 +72,9 @@ describe('basic > ', () => {
       const product1 = screen.getByTestId('product-p1')
       const product2 = screen.getByTestId('product-p2')
       const product3 = screen.getByTestId('product-p3')
-      const addToCartButtonsAtProduct1 = within(product1).getByText('장바구니에 추가')
-      const addToCartButtonsAtProduct2 = within(product2).getByText('장바구니에 추가')
-      const addToCartButtonsAtProduct3 = within(product3).getByText('장바구니에 추가')
+      const handleAddToCartButtonsAtProduct1 = within(product1).getByText('장바구니에 추가')
+      const handleAddToCartButtonsAtProduct2 = within(product2).getByText('장바구니에 추가')
+      const handleAddToCartButtonsAtProduct3 = within(product3).getByText('장바구니에 추가')
 
       // 1. 상품 정보 표시
       expect(product1).toHaveTextContent('상품1')
@@ -91,7 +91,7 @@ describe('basic > ', () => {
       expect(screen.getByText('10개 이상: 10% 할인')).toBeInTheDocument()
 
       // 3. 상품1 장바구니에 상품 추가
-      fireEvent.click(addToCartButtonsAtProduct1) // 상품1 추가
+      fireEvent.click(handleAddToCartButtonsAtProduct1) // 상품1 추가
 
       // 4. 할인율 계산
       expect(screen.getByText('상품 금액: 10,000원')).toBeInTheDocument()
@@ -100,12 +100,12 @@ describe('basic > ', () => {
 
       // 5. 상품 품절 상태로 만들기
       for (let i = 0; i < 19; i++) {
-        fireEvent.click(addToCartButtonsAtProduct1)
+        fireEvent.click(handleAddToCartButtonsAtProduct1)
       }
 
       // 6. 품절일 때 상품 추가 안 되는지 확인하기
       expect(product1).toHaveTextContent('재고: 0개')
-      fireEvent.click(addToCartButtonsAtProduct1)
+      fireEvent.click(handleAddToCartButtonsAtProduct1)
       expect(product1).toHaveTextContent('재고: 0개')
 
       // 7. 할인율 계산
@@ -114,8 +114,8 @@ describe('basic > ', () => {
       expect(screen.getByText('최종 결제 금액: 180,000원')).toBeInTheDocument()
 
       // 8. 상품을 각각 10개씩 추가하기
-      fireEvent.click(addToCartButtonsAtProduct2) // 상품2 추가
-      fireEvent.click(addToCartButtonsAtProduct3) // 상품3 추가
+      fireEvent.click(handleAddToCartButtonsAtProduct2) // 상품2 추가
+      fireEvent.click(handleAddToCartButtonsAtProduct3) // 상품3 추가
 
       const increaseButtons = screen.getAllByText('+')
       for (let i = 0; i < 9; i++) {
@@ -266,7 +266,7 @@ describe('basic > ', () => {
       const newCoupon: Coupon = { name: 'New Coupon', code: 'NEW_CODE', discountType: 'amount', discountValue: 5000 }
 
       act(() => {
-        result.current.handleAddCoupon(newCoupon)
+        result.current.addCoupon(newCoupon)
       })
 
       expect(result.current.coupons).toHaveLength(3)
@@ -338,26 +338,26 @@ describe('basic > ', () => {
       })
     })
 
-    describe('updateCartItemQuantity', () => {
+    describe('updateItemQuantity', () => {
       const cart: CartItem[] = [
         { product: testProduct, quantity: 2 },
         { product: { ...testProduct, id: '2' }, quantity: 1 },
       ]
 
       test('수량을 올바르게 업데이트해야 합니다', () => {
-        const updatedCart = cartUtils.updateCartItemQuantity(cart, '1', 5)
+        const updatedCart = cartUtils.updateItemQuantity(cart, '1', 5)
         expect(updatedCart[0].quantity).toBe(5)
         expect(updatedCart[1].quantity).toBe(1)
       })
 
       test('수량이 0으로 설정된 경우 항목을 제거해야 합니다.', () => {
-        const updatedCart = cartUtils.updateCartItemQuantity(cart, '1', 0)
+        const updatedCart = cartUtils.updateItemQuantity(cart, '1', 0)
         expect(updatedCart.length).toBe(1)
         expect(updatedCart[0].product.id).toBe('2')
       })
 
       test('재고 한도를 초과해서는 안 됩니다.', () => {
-        const updatedCart = cartUtils.updateCartItemQuantity(cart, '1', 15)
+        const updatedCart = cartUtils.updateItemQuantity(cart, '1', 15)
         expect(updatedCart[0].quantity).toBe(10) // max stock is 10
       })
     })
@@ -383,7 +383,7 @@ describe('basic > ', () => {
 
       act(() => {
         result.current.addToCart(testProduct)
-        result.current.removeFromCart(testProduct.id)
+        result.current.removeCart(testProduct.id)
       })
 
       expect(result.current.cart).toHaveLength(0)
@@ -394,7 +394,7 @@ describe('basic > ', () => {
 
       act(() => {
         result.current.addToCart(testProduct)
-        result.current.updateQuantity(testProduct.id, 5)
+        result.current.updateCartQuantity(testProduct.id, 5)
       })
       expect(result.current.cart[0].quantity).toBe(5)
     })
@@ -414,7 +414,7 @@ describe('basic > ', () => {
 
       act(() => {
         result.current.addToCart(testProduct)
-        result.current.updateQuantity(testProduct.id, 2)
+        result.current.updateCartQuantity(testProduct.id, 2)
         result.current.applyCoupon(testCoupon)
       })
 
